@@ -10,6 +10,7 @@ use App\Controllers\PasswordController;
 use App\Controllers\PermissionController;
 use App\Controllers\ProfileController;
 use App\Controllers\RoleController;
+use App\Controllers\SectorController;
 use App\Controllers\SettingsController;
 use App\Controllers\UserController;
 use Core\Router;
@@ -48,6 +49,13 @@ $router->put('/roles/{id}', [RoleController::class, 'update'], ['auth', 'can:rol
 $router->delete('/roles/{id}', [RoleController::class, 'destroy'], ['auth', 'can:roles.delete'], 'roles.destroy');
 
 $router->get('/permissions', [PermissionController::class, 'index'], ['auth', 'can:permissions.view'], 'permissions.index');
+
+$router->get('/sectors', [SectorController::class, 'index'], ['auth', 'can:sectors.view'], 'sectors.index');
+$router->get('/sectors/create', [SectorController::class, 'create'], ['auth', 'can:sectors.create'], 'sectors.create');
+$router->post('/sectors', [SectorController::class, 'store'], ['auth', 'can:sectors.create'], 'sectors.store');
+$router->get('/sectors/{id}/edit', [SectorController::class, 'edit'], ['auth', 'can:sectors.update'], 'sectors.edit');
+$router->put('/sectors/{id}', [SectorController::class, 'update'], ['auth', 'can:sectors.update'], 'sectors.update');
+$router->delete('/sectors/{id}', [SectorController::class, 'destroy'], ['auth', 'can:sectors.delete'], 'sectors.destroy');
 
 $router->get('/audit', [AuditController::class, 'index'], ['auth', 'can:audit.view'], 'audit.index');
 $router->get('/audit/{id}', [AuditController::class, 'show'], ['auth', 'can:audit.view'], 'audit.show');

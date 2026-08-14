@@ -26,6 +26,7 @@ $sendaOpen = hasPermission('senda.access') && is_active_path('/senda');
 $admin = [
     ['label' => 'Usuarios', 'icon' => 'bi-people', 'path' => '/users', 'permission' => 'users.access'],
     ['label' => 'Roles', 'icon' => 'bi-shield-lock', 'path' => '/roles', 'permission' => 'roles.access'],
+    ['label' => 'Sectores', 'icon' => 'bi-geo-alt', 'path' => '/sectors', 'permission' => 'sectors.access'],
     ['label' => 'Auditoría', 'icon' => 'bi-journal-text', 'path' => '/audit', 'permission' => 'audit.access'],
     ['label' => 'Configuración', 'icon' => 'bi-gear', 'path' => '/settings', 'permission' => 'settings.access'],
 ];

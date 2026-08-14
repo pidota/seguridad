@@ -282,6 +282,7 @@ function permission_module_label(string $module): string
         'permissions' => 'Permisos',
         'audit' => 'Auditoría',
         'settings' => 'Configuración',
+        'sectors' => 'Sectores',
         'security' => 'Seguridad Municipal',
         'senda' => 'SENDA',
         'cameras' => 'Central de Cámaras',

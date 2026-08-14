@@ -24,6 +24,12 @@ return [
 
     ['slug' => 'settings.access', 'name' => 'Acceder a configuración', 'module' => 'settings', 'description' => 'Ver la configuración institucional'],
 
+    ['slug' => 'sectors.access', 'name' => 'Acceder a sectores', 'module' => 'sectors', 'description' => 'Ver el menú de sectores territoriales'],
+    ['slug' => 'sectors.view', 'name' => 'Ver sectores', 'module' => 'sectors', 'description' => 'Listar sectores territoriales'],
+    ['slug' => 'sectors.create', 'name' => 'Crear sectores', 'module' => 'sectors', 'description' => 'Registrar sectores territoriales'],
+    ['slug' => 'sectors.update', 'name' => 'Editar sectores', 'module' => 'sectors', 'description' => 'Modificar sectores territoriales'],
+    ['slug' => 'sectors.delete', 'name' => 'Eliminar sectores', 'module' => 'sectors', 'description' => 'Dar de baja sectores territoriales'],
+
     ['slug' => 'security.access', 'name' => 'Acceder a Seguridad Municipal', 'module' => 'security', 'description' => 'Ingreso al módulo de seguridad comunal'],
 
     ['slug' => 'senda.access', 'name' => 'Acceder a SENDA', 'module' => 'senda', 'description' => 'Ingreso al módulo SENDA'],

@@ -16,6 +16,7 @@ return [
         'permissions.view',
         'audit.access', 'audit.view',
         'settings.access',
+        'sectors.access', 'sectors.view', 'sectors.create', 'sectors.update', 'sectors.delete',
         'security.access',
         'senda.access',
         'senda.dashboard.view',

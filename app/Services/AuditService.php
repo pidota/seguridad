@@ -148,6 +148,7 @@ final class AuditService
             self::RESOURCE_CCTV_LOG_ENTRY => 'Entrada bitácora CCTV',
             'users' => 'Usuario',
             'roles' => 'Rol',
+            'sectors' => 'Sector',
             default => $resource,
         };
     }

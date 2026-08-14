@@ -46,6 +46,13 @@ final class SettingsController extends Controller
                 'permission' => 'permissions.view',
             ],
             [
+                'label' => 'Sectores',
+                'description' => 'Sectores territoriales usados en CCTV y otros módulos.',
+                'icon' => 'bi-geo-alt',
+                'route' => '/sectors',
+                'permission' => 'sectors.view',
+            ],
+            [
                 'label' => 'Auditoría',
                 'description' => 'Bitácora inmutable de acciones.',
                 'icon' => 'bi-journal-text',
