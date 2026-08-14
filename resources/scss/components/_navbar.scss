@@ -1,0 +1,121 @@
+.app-navbar {
+  background: rgba($white, 0.94);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid $line;
+  padding: 0.9rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+
+  h1 {
+    font-family: $serif;
+    font-size: 1.35rem;
+    margin: 0;
+    line-height: 1.2;
+  }
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-width: 0;
+}
+
+.navbar-kicker {
+  margin: 0;
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: $muted;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 42rem;
+}
+
+.navbar-user__button {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  border: 1px solid $line;
+  background: $white;
+  border-radius: 999px;
+  padding: 0.28rem 0.7rem 0.28rem 0.3rem;
+  color: $ink;
+}
+
+.navbar-user__avatar,
+.profile-card__avatar {
+  width: 2.15rem;
+  height: 2.15rem;
+  border-radius: 50%;
+  background: $navy;
+  color: $gold;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+}
+
+.profile-card__avatar {
+  width: 4.6rem;
+  height: 4.6rem;
+  font-size: 1.6rem;
+  margin: 0 auto;
+}
+
+.navbar-user__meta {
+  text-align: left;
+
+  strong,
+  small {
+    display: block;
+    line-height: 1.2;
+  }
+
+  small {
+    color: $muted;
+    font-size: 0.75rem;
+    max-width: 16rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.navbar-dropdown {
+  min-width: 14rem;
+  border: 1px solid $line;
+  box-shadow: 0 12px 30px rgba($navy-deep, 0.08);
+
+  .dropdown-item {
+    display: flex;
+    gap: 0.55rem;
+    align-items: center;
+    padding: 0.55rem 0.9rem;
+  }
+
+  form .dropdown-item {
+    width: 100%;
+    background: transparent;
+    border: 0;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .app-navbar {
+    padding: 0.8rem 1rem;
+  }
+
+  .navbar-user__meta {
+    display: none;
+  }
+
+  .navbar-kicker {
+    max-width: 11rem;
+  }
+}

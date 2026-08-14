@@ -1,0 +1,431 @@
+// Turnos CCTV: panel, recepción, cierre y detalle histórico.
+
+.cctv-shift-panel {
+  &__header,
+  &__empty {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  &__message {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: $navy;
+  }
+
+  &__start {
+    margin: 0;
+  }
+
+  &__subtitle {
+    font-family: $serif;
+    font-size: 1rem;
+    color: $navy;
+    margin: 0 0 0.75rem;
+  }
+
+  &__last {
+    border-top: 1px solid $line;
+    margin-top: 1.1rem;
+    padding-top: 1.1rem;
+  }
+
+  &__meta {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.85rem 1rem;
+    margin: 1rem 0 0;
+
+    dt {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: $muted;
+      margin-bottom: 0.2rem;
+    }
+
+    dd {
+      margin: 0;
+      color: $ink;
+      font-weight: 600;
+    }
+
+    &--last {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  &__notes,
+  &__checks {
+    border-top: 1px solid $line;
+    margin-top: 1.1rem;
+    padding-top: 1.1rem;
+  }
+}
+
+.cctv-shift-check-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+
+  &__item {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  &__main {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.55rem 0.85rem;
+  }
+
+  &__name {
+    font-weight: 700;
+    color: $navy;
+  }
+
+  &__notes {
+    color: $muted;
+    font-size: 0.92rem;
+  }
+}
+
+// Recepción y entrega de puesto
+.cctv-reception-intro {
+  color: $muted;
+}
+
+.cctv-reception-equipment {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.cctv-reception-item {
+  border: 1px solid $line;
+  border-radius: 0.85rem;
+  padding: 1rem 1.1rem;
+  background: rgba($cream, 0.45);
+
+  &__header {
+    margin-bottom: 0.85rem;
+  }
+
+  &__title {
+    font-family: $serif;
+    font-size: 1.05rem;
+    color: $navy;
+    margin: 0;
+  }
+
+  &__error {
+    margin: 0.35rem 0 0;
+    color: $danger;
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
+
+  &__statuses {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+  }
+
+  &__notes {
+    margin-top: 0.85rem;
+  }
+}
+
+.cctv-reception-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  cursor: pointer;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid rgba($line, 0.9);
+  border-radius: 999px;
+  background: $white;
+  transition: border-color 0.15s ease, background 0.15s ease;
+
+  &:has(input:checked) {
+    border-color: rgba($navy, 0.35);
+    background: rgba($navy, 0.05);
+  }
+
+  input {
+    accent-color: $navy;
+  }
+
+  &__label {
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.92rem;
+  }
+}
+
+// Resumen de cierre
+.cctv-shift-close-summary {
+  border: 1px solid rgba($navy, 0.12);
+  border-radius: 0.9rem;
+  background: rgba($navy, 0.03);
+  padding: 1rem 1.05rem;
+  margin-bottom: 1.2rem;
+
+  &__header {
+    margin-bottom: 0.85rem;
+  }
+
+  &__title {
+    font-family: $serif;
+    font-size: 1.1rem;
+    color: $navy;
+  }
+
+  &__hint {
+    font-size: 0.88rem;
+    color: $muted;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.75rem 1rem;
+    margin: 0;
+
+    dt {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: $muted;
+      margin-bottom: 0.15rem;
+    }
+
+    dd {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 700;
+      color: $navy;
+    }
+  }
+}
+
+.cctv-shift-close-confirm {
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.65rem 1rem;
+    margin: 0 0 0.85rem;
+    text-align: left;
+
+    dt {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: $muted;
+      margin-bottom: 0.1rem;
+    }
+
+    dd {
+      margin: 0;
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: $navy;
+    }
+  }
+
+  &__message {
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.45;
+    color: $muted;
+    text-align: left;
+  }
+}
+
+// Detalle histórico de turno
+.cctv-shift-detail {
+  &__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  &__meta,
+  &__stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.85rem 1rem;
+    margin: 0;
+
+    div {
+      min-width: 0;
+    }
+
+    dt {
+      margin: 0 0 0.2rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: $muted;
+    }
+
+    dd {
+      margin: 0;
+      font-family: $serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: $navy;
+    }
+  }
+
+  &__stats {
+    margin-top: 1.1rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid $line;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  &__panel-title,
+  &__notes-title {
+    font-family: $serif;
+    font-size: 1.15rem;
+    color: $navy;
+    margin-bottom: 0.35rem;
+  }
+
+  &__panel-hint,
+  &__empty {
+    color: $muted;
+  }
+
+  &__notes {
+    border-top: 1px solid $line;
+    padding-top: 0.85rem;
+  }
+
+  &__summary-head {
+    margin-bottom: 1rem;
+  }
+
+  &__categories {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  &__category {
+    border: 1px solid $line;
+    border-radius: 0.85rem;
+    padding: 0.95rem 1rem;
+    background: rgba($cream, 0.35);
+    min-height: 100%;
+  }
+
+  &__category-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.65rem;
+    margin-bottom: 0.75rem;
+  }
+
+  &__category-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: $navy;
+  }
+
+  &__category-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.65rem;
+    height: 1.65rem;
+    padding: 0 0.45rem;
+    border-radius: 999px;
+    background: rgba($navy, 0.08);
+    color: $navy;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+
+  &__entry-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  &__entry-item {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  &__entry-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.55rem;
+  }
+
+  &__entry-summary {
+    color: $ink;
+    font-size: 0.92rem;
+  }
+
+  &__entry-link {
+    font-size: 0.88rem;
+    font-weight: 700;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .cctv-shift-panel__meta,
+  .cctv-shift-panel__meta--last {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cctv-shift-close-summary__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cctv-shift-detail__meta,
+  .cctv-shift-detail__stats,
+  .cctv-shift-detail__grid,
+  .cctv-shift-detail__categories {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .cctv-shift-panel__meta,
+  .cctv-shift-panel__meta--last {
+    grid-template-columns: 1fr;
+  }
+
+  .cctv-shift-detail__meta,
+  .cctv-shift-detail__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

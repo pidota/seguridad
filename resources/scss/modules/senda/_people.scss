@@ -1,0 +1,147 @@
+.senda-person-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  background: $white;
+  border: 1px solid $line;
+  border-radius: 0.9rem;
+  padding: 1.1rem 1.2rem;
+}
+
+.senda-person-card__name {
+  font-family: $serif;
+  font-size: 1.25rem;
+  margin: 0 0 0.65rem;
+  color: $navy;
+}
+
+.senda-person-card__meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem 1.2rem;
+  margin: 0;
+
+  dt {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: $muted;
+  }
+
+  dd {
+    margin: 0.1rem 0 0;
+  }
+}
+
+.senda-person-card__meta--wide {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.senda-person-card__actions {
+  margin: 0;
+}
+
+.senda-history__person {
+  font-family: $serif;
+  font-size: 1.2rem;
+  color: $navy;
+  margin-bottom: 0.35rem;
+}
+
+.senda-history__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace;
+}
+
+.senda-history__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.55rem;
+  padding: 0.35rem 0;
+  color: $navy;
+}
+
+.senda-history__branch {
+  color: $muted;
+  user-select: none;
+}
+
+.senda-history__meta {
+  color: $muted;
+  font-family: $font;
+  font-size: 0.88rem;
+}
+
+.senda-tree__person {
+  font-family: $serif;
+  font-size: 1.2rem;
+  color: $navy;
+  margin-bottom: 0.55rem;
+}
+
+.senda-tree__list,
+.senda-tree__children {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace;
+}
+
+.senda-tree__attention {
+  margin: 0 0 1.1rem;
+}
+
+.senda-tree__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.45rem;
+  padding: 0.2rem 0;
+  color: $navy;
+}
+
+.senda-tree__branch {
+  color: $muted;
+  user-select: none;
+  white-space: pre;
+}
+
+.senda-tree__meta {
+  color: $muted;
+  font-family: $font;
+  font-size: 0.88rem;
+}
+
+.senda-tree__answers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 0.55rem 1rem;
+  margin: 0.55rem 0 0 2.4rem;
+}
+
+.senda-tree__answers dt {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: $muted;
+}
+
+.senda-tree__answers dd {
+  margin: 0.15rem 0 0;
+  font-family: $font;
+}
+
+@media (max-width: 991.98px) {
+  .senda-person-card__meta,
+  .senda-person-card__meta--wide,
+  .senda-tree__answers {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,140 @@
+// Timeline / bitácora del turno activo.
+
+.cctv-shift-log {
+  &__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  &__hint,
+  &__order-label,
+  &__empty {
+    color: $muted;
+  }
+
+  &__controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    align-items: center;
+  }
+
+  &__sort {
+    margin: 0;
+  }
+
+  &__table-wrap {
+    border: 1px solid $line;
+    border-radius: 0.85rem;
+    overflow: hidden;
+    background: $white;
+  }
+
+  &__table {
+    margin: 0;
+
+    thead th {
+      background: rgba($cream, 0.75);
+      font-size: 0.78rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: $muted;
+      border-bottom-color: $line;
+      white-space: nowrap;
+    }
+
+    tbody td {
+      vertical-align: top;
+      border-bottom-color: rgba($line, 0.85);
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    tbody tr:hover:not(.cctv-shift-log__row--shift_opening):not(.cctv-shift-log__row--shift_closing) {
+      background: rgba($cream, 0.45);
+    }
+  }
+
+  &__row--shift_opening {
+    background: rgba($success, 0.06);
+  }
+
+  &__row--shift_closing {
+    background: rgba($navy, 0.04);
+  }
+
+  &__time {
+    font-family: $serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: $navy;
+    white-space: nowrap;
+  }
+
+  &__summary {
+    color: $ink;
+    max-width: 28rem;
+    line-height: 1.45;
+  }
+
+  &__feed {
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  &__card {
+    border: 1px solid $line;
+    border-radius: 0.85rem;
+    padding: 0.95rem 1rem;
+    background: $white;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+    &:hover {
+      border-color: rgba($gold, 0.45);
+      box-shadow: 0 0.35rem 0.9rem rgba($navy-deep, 0.05);
+    }
+
+    &--shift_opening {
+      background: rgba($success, 0.06);
+      border-color: rgba($success, 0.18);
+    }
+
+    &--shift_closing {
+      background: rgba($navy, 0.04);
+      border-color: rgba($navy, 0.12);
+    }
+  }
+
+  &__card-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.65rem;
+    margin-bottom: 0.45rem;
+  }
+
+  &__card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem 0.85rem;
+    margin-bottom: 0.45rem;
+    color: $navy;
+    font-weight: 600;
+    font-size: 0.92rem;
+  }
+
+  &__card-foot {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    align-items: center;
+    color: $muted;
+    font-size: 0.88rem;
+  }
+}

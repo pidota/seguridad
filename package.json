@@ -1,0 +1,13 @@
+{
+  "name": "seguridad-municipal",
+  "private": true,
+  "scripts": {
+    "dev": "sass --watch resources/scss/app.scss:public/assets/css/app.css --style=expanded --source-map",
+    "build": "npm run build:css && npm run build:js",
+    "build:css": "sass resources/scss/app.scss public/assets/css/app.css --style=compressed --no-source-map",
+    "build:js": "node scripts/copy-cctv-js.cjs"
+  },
+  "devDependencies": {
+    "sass": "^1.77.0"
+  }
+}

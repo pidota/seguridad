@@ -1,0 +1,15 @@
+.senda-referral-fieldset {
+  border: 1px solid $line;
+  border-radius: 0.9rem;
+  padding: 1rem 1.1rem 1.1rem;
+  margin: 0;
+
+  legend {
+    font-family: $serif;
+    font-size: 1.05rem;
+    color: $navy;
+    float: none;
+    width: auto;
+    padding: 0 0.4rem;
+  }
+}

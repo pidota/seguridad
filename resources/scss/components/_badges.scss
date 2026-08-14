@@ -1,0 +1,95 @@
+.badge-soon {
+  display: inline-block;
+  background: rgba($gold, 0.18);
+  color: $navy;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.28rem 0.6rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.role-chip {
+  background: rgba($gold, 0.14);
+  color: $gold;
+  border: 1px solid rgba($gold, 0.38);
+  border-radius: 999px;
+  padding: 0.4rem 0.85rem;
+  white-space: nowrap;
+  max-width: 22rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.role-badge {
+  display: inline-block;
+  background: rgba($navy, 0.08);
+  color: $navy;
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.78rem;
+  margin: 0.1rem;
+}
+
+.status-pill {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.status-pill.is-on {
+  background: rgba($success, 0.15);
+  color: $success;
+}
+
+.status-pill.is-off {
+  background: rgba($danger, 0.12);
+  color: $danger;
+}
+
+a.status-pill {
+  text-decoration: none;
+}
+
+.senda-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.28rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.senda-badge--referral {
+  background: rgba($navy, 0.1);
+  color: $navy;
+}
+
+.senda-badge--spontaneous {
+  background: rgba($gold, 0.22);
+  color: $navy-deep;
+}
+
+.senda-badge--followup {
+  background: rgba($gold, 0.16);
+  color: $navy-deep;
+}
+
+.senda-badge--assist {
+  background: rgba($success, 0.14);
+  color: $success;
+}
+
+.senda-badge--attention {
+  background: rgba($navy, 0.08);
+  color: $navy;
+}
+
+.senda-badge i {
+  margin-right: 0.3rem;
+}

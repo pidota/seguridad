@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS senda_people (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    first_names VARCHAR(150) NOT NULL,
+    paternal_surname VARCHAR(120) NOT NULL,
+    maternal_surname VARCHAR(120) NULL,
+    rut VARCHAR(20) NOT NULL,
+    rut_normalized VARCHAR(12) NOT NULL,
+    birth_date DATE NOT NULL,
+    address VARCHAR(255) NULL,
+    phone VARCHAR(30) NULL,
+    email VARCHAR(150) NULL,
+    education VARCHAR(150) NULL,
+    occupation VARCHAR(150) NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    UNIQUE INDEX uq_senda_people_rut_normalized (rut_normalized),
+    INDEX idx_senda_people_deleted_at (deleted_at),
+    INDEX idx_senda_people_name (paternal_surname, maternal_surname, first_names)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

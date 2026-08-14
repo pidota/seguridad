@@ -1,0 +1,293 @@
+.senda-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0 0 1.2rem;
+}
+
+.senda-nav__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.8rem;
+  border: 1px solid $line;
+  border-radius: 999px;
+  background: $white;
+  color: $navy;
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+
+  &:hover,
+  &.is-active {
+    background: $navy;
+    border-color: $navy;
+    color: $white;
+  }
+}
+
+.senda-hero {
+  background:
+    radial-gradient(circle at 90% 10%, rgba($gold, 0.16), transparent 30%),
+    linear-gradient(135deg, $navy-deep, $navy);
+  color: $white;
+  border-radius: 1rem;
+  padding: 1.4rem 1.5rem;
+  margin-bottom: 1.1rem;
+}
+
+.senda-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.senda-card-grid--three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.senda-entry-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  background: $white;
+  border: 1px solid $line;
+  border-radius: 0.9rem;
+  padding: 0.85rem 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.senda-entry-bar__info,
+.senda-entry-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.senda-entry-bar__kicker {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: $muted;
+}
+
+.senda-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.senda-choice-grid--three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.senda-choice-form {
+  margin: 0;
+}
+
+.senda-choice-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  min-height: 100%;
+  text-align: left;
+  background: $white;
+  border: 1px solid $line;
+  border-radius: 1rem;
+  padding: 1.35rem 1.4rem;
+  color: $ink;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+
+  &:hover,
+  &:focus-visible {
+    border-color: $gold;
+    box-shadow: 0 0.6rem 1.4rem rgba($navy, 0.08);
+    transform: translateY(-1px);
+    outline: none;
+  }
+
+  &.is-current {
+    border-color: $navy;
+    box-shadow: 0 0 0 0.12rem rgba($navy, 0.18);
+  }
+}
+
+.senda-choice-card__radio {
+  margin: 0 0 0.55rem;
+}
+
+.senda-choice-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 0.75rem;
+  background: rgba($navy, 0.08);
+  color: $navy;
+  font-size: 1.25rem;
+  margin-bottom: 0.85rem;
+}
+
+.senda-choice-card--spontaneous .senda-choice-card__icon {
+  background: rgba($gold, 0.22);
+}
+
+.senda-choice-card__label {
+  display: block;
+  font-family: $serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: $navy;
+  margin-bottom: 0.4rem;
+}
+
+.senda-choice-card__text {
+  display: block;
+  color: $muted;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.senda-choice-card__hint {
+  margin-top: 0.9rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: $navy;
+}
+
+.senda-mini-card {
+  display: block;
+  background: $white;
+  border: 1px solid $line;
+  border-radius: 0.9rem;
+  padding: 1.15rem 1.2rem;
+  text-decoration: none;
+  color: $ink;
+
+  i {
+    color: $navy;
+    font-size: 1.25rem;
+  }
+
+  h3 {
+    font-family: $serif;
+    font-size: 1.1rem;
+    margin: 0.5rem 0 0.3rem;
+  }
+
+  p {
+    margin: 0;
+    color: $muted;
+  }
+
+  &:hover {
+    border-color: $gold;
+    color: $ink;
+  }
+}
+
+.senda-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+  margin-bottom: 1.1rem;
+}
+
+.senda-metric {
+  display: block;
+  background: $white;
+  border: 1px solid $line;
+  border-radius: 0.9rem;
+  padding: 1.05rem 1.15rem;
+  text-decoration: none;
+  color: $ink;
+  border-left: 0.35rem solid $navy;
+
+  &:hover {
+    border-color: $gold;
+    color: $ink;
+  }
+}
+
+.senda-metric--overdue {
+  border-left-color: $danger;
+}
+
+.senda-metric--due {
+  border-left-color: $gold;
+}
+
+.senda-metric--done {
+  border-left-color: $success;
+}
+
+.senda-metric__label {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: $muted;
+}
+
+.senda-metric__value {
+  font-family: $serif;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.15;
+  margin: 0.25rem 0 0.15rem;
+  color: $navy;
+}
+
+.senda-metric--overdue .senda-metric__value {
+  color: $danger;
+}
+
+.senda-metric__hint {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: $navy;
+}
+
+.senda-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.senda-stats-card {
+  margin: 0;
+}
+
+.senda-stats-card .page-card__title {
+  margin-bottom: 0.85rem;
+}
+
+@media (max-width: 991.98px) {
+  .senda-card-grid,
+  .senda-card-grid--three,
+  .senda-choice-grid,
+  .senda-choice-grid--three,
+  .senda-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .senda-metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 575.98px) {
+  .senda-metric-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,47 @@
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+  padding: 0.75rem 0.6rem;
+  border-bottom: 1px solid $line;
+  vertical-align: middle;
+}
+
+.data-table th {
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: $muted;
+}
+
+.audit-dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.8rem 1.2rem;
+  margin: 1rem 0 0;
+}
+
+.audit-dl dt {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: $muted;
+}
+
+.audit-dl dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.audit-json {
+  background: $navy;
+  color: $cream;
+  border-radius: 0.6rem;
+  padding: 0.9rem;
+  min-height: 8rem;
+  overflow: auto;
+  font-size: 0.82rem;
+}

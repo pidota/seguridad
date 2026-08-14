@@ -1,0 +1,80 @@
+$navy: #0b1f33;
+$navy-deep: #071422;
+$navy-soft: #14324d;
+$gold: #c4a35a;
+$gold-hover: #d4b56e;
+$cream: #f4efe6;
+$ink: #1c2430;
+$muted: #5c6774;
+$line: #d9d1c3;
+$white: #fff;
+$danger: #9b2c2c;
+$success: #2f6b4f;
+
+$sidebar-width: 260px;
+$font: "Source Sans 3", system-ui, sans-serif;
+$serif: "Source Serif 4", Georgia, serif;
+
+:root {
+  --navy: #{$navy};
+  --gold: #{$gold};
+  --cream: #{$cream};
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body.app-body {
+  font-family: $font;
+  color: $ink;
+  background:
+    linear-gradient(180deg, rgba($navy, 0.03), transparent 220px),
+    $cream;
+}
+
+.app-shell {
+  display: grid;
+  grid-template-columns: $sidebar-width 1fr;
+  min-height: 100vh;
+}
+
+.app-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.app-content {
+  padding: 1.75rem 2rem 2.4rem;
+  flex: 1;
+}
+
+.sidebar-backdrop {
+  display: none;
+}
+
+@media (max-width: 991.98px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .app-content {
+    padding: 1.2rem;
+  }
+}
+
+@import "components/sidebar";
+@import "components/navbar";
+@import "components/cards";
+@import "components/forms";
+@import "components/tables";
+@import "components/badges";
+@import "modules/senda/dashboard";
+@import "modules/senda/people";
+@import "modules/senda/attentions";
+@import "modules/senda/referrals";
+@import "modules/senda/assist";
+@import "modules/senda/followups";
+@import "modules/cctv/index";

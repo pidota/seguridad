@@ -1,0 +1,138 @@
+// Inventario y filtros de cámaras CCTV.
+
+.camera-filters {
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.85rem;
+  }
+
+  &__field--wide {
+    grid-column: 1 / -1;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-top: 0.85rem;
+  }
+}
+
+// Badges legacy (eventos antiguos)
+.camera-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background: rgba($navy, 0.08);
+  color: $navy;
+
+  &--routine {
+    background: rgba($success, 0.12);
+    color: $success;
+  }
+
+  &--traffic {
+    background: rgba($gold, 0.18);
+    color: #9a8448;
+  }
+
+  &--alert {
+    background: rgba($danger, 0.12);
+    color: $danger;
+  }
+
+  &--medical {
+    background: rgba(#2f6b9b, 0.12);
+    color: #2f6b9b;
+  }
+
+  &--fire {
+    background: rgba(#b45309, 0.14);
+    color: #b45309;
+  }
+
+  &--crime {
+    background: rgba($navy, 0.14);
+    color: $navy;
+  }
+
+  &--support {
+    background: rgba($success, 0.1);
+    color: $success;
+  }
+
+  &--technical {
+    background: rgba($muted, 0.14);
+    color: $muted;
+  }
+}
+
+// Badges operativos (tipos, estados, turno)
+.camera-device-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background: rgba($navy, 0.08);
+  color: $navy;
+
+  &--success {
+    background: rgba($success, 0.12);
+    color: $success;
+  }
+
+  &--warning {
+    background: rgba($gold, 0.18);
+    color: #9a8448;
+  }
+
+  &--danger {
+    background: rgba($danger, 0.12);
+    color: $danger;
+  }
+
+  &--alert {
+    background: rgba($danger, 0.1);
+    color: #a03434;
+  }
+
+  &--traffic {
+    background: rgba($gold, 0.18);
+    color: #9a8448;
+  }
+
+  &--crime {
+    background: rgba($navy, 0.12);
+    color: $navy;
+  }
+
+  &--medical {
+    background: rgba(#3a8a5b, 0.14);
+    color: #2f6d49;
+  }
+
+  &--other {
+    background: rgba($muted, 0.16);
+    color: $ink;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .camera-filters__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .camera-filters__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

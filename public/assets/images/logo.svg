@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Escudo municipal">
+  <path fill="#0b1f33" d="M32 4l22 8v18c0 14.5-9.2 27.2-22 30.8C19.2 57.2 10 44.5 10 30V12l22-8z"/>
+  <path fill="#c4a35a" d="M32 10.2l16 5.8v13.6c0 11.2-7 21.1-16 24.1-9-3-16-12.9-16-24.1V16l16-5.8z"/>
+  <path fill="#0b1f33" d="M32 18l8.5 16H36l-1.3-2.6h-5.4L28 34h-4.5L32 18zm-1.4 10.8h2.8L32 25.4l-1.4 3.4z"/>
+</svg>
