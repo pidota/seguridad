@@ -1,0 +1,46 @@
+CREATE TABLE IF NOT EXISTS cctv_recording_requests (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    office_visit_id INT UNSIGNED NOT NULL,
+    request_number VARCHAR(40) NOT NULL,
+    incident_date DATE NOT NULL,
+    time_from TIME NOT NULL,
+    time_to TIME NOT NULL,
+    sector_id INT UNSIGNED NULL,
+    cctv_camera_id INT UNSIGNED NULL,
+    incident_description TEXT NOT NULL,
+    has_complaint TINYINT(1) NOT NULL DEFAULT 0,
+    complaint_institution VARCHAR(80) NULL,
+    complaint_number VARCHAR(120) NULL,
+    complaint_date DATE NULL,
+    complaint_observations TEXT NULL,
+    complaint_document_path VARCHAR(255) NULL,
+    complaint_document_original_name VARCHAR(255) NULL,
+    complaint_document_mime VARCHAR(120) NULL,
+    complaint_document_size INT UNSIGNED NULL,
+    status VARCHAR(40) NOT NULL,
+    reviewed_by INT UNSIGNED NULL,
+    reviewed_at DATETIME NULL,
+    delivered_by INT UNSIGNED NULL,
+    delivered_at DATETIME NULL,
+    delivery_notes TEXT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    UNIQUE KEY uq_cctv_recording_requests_number (request_number),
+    UNIQUE KEY uq_cctv_recording_requests_visit (office_visit_id),
+    INDEX idx_cctv_recording_requests_status (status),
+    INDEX idx_cctv_recording_requests_incident_date (incident_date),
+    INDEX idx_cctv_recording_requests_sector (sector_id),
+    INDEX idx_cctv_recording_requests_camera (cctv_camera_id),
+    INDEX idx_cctv_recording_requests_deleted_at (deleted_at),
+    CONSTRAINT fk_cctv_recording_requests_visit
+        FOREIGN KEY (office_visit_id) REFERENCES cctv_office_visits(id) ON DELETE RESTRICT,
+    CONSTRAINT fk_cctv_recording_requests_sector
+        FOREIGN KEY (sector_id) REFERENCES sectors(id) ON DELETE SET NULL,
+    CONSTRAINT fk_cctv_recording_requests_camera
+        FOREIGN KEY (cctv_camera_id) REFERENCES cctv_cameras(id) ON DELETE SET NULL,
+    CONSTRAINT fk_cctv_recording_requests_reviewed_by
+        FOREIGN KEY (reviewed_by) REFERENCES users(id) ON DELETE SET NULL,
+    CONSTRAINT fk_cctv_recording_requests_delivered_by
+        FOREIGN KEY (delivered_by) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

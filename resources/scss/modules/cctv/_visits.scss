@@ -1,0 +1,57 @@
+.cctv-visits-alerts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cctv-visits-alerts li + li {
+  margin-top: 0.75rem;
+}
+
+.cctv-visits-alerts a {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.cctv-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.cctv-detail-grid dt {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: rgba($navy, 0.65);
+}
+
+.cctv-detail-grid dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.cctv-visit-history {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cctv-visit-history li + li {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba($navy, 0.08);
+}
+
+.cctv-visit-history p {
+  margin: 0.35rem 0;
+}
+
+.cctv-visit-recording-panel {
+  border-top: 1px solid rgba($navy, 0.08);
+  padding-top: 1.25rem;
+  margin-top: 0.5rem;
+}

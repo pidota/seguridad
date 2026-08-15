@@ -7,6 +7,7 @@ namespace App\Controllers\Camera;
 use App\Services\Cctv\CameraService;
 use App\Services\Cctv\LogEntryService;
 use App\Services\Cctv\ShiftService;
+use App\Services\Cctv\VisitDashboardService;
 use Core\Auth;
 use Core\Request;
 
@@ -15,7 +16,8 @@ final class DashboardController extends CameraController
     public function __construct(
         private readonly ShiftService $shifts = new ShiftService(),
         private readonly LogEntryService $logEntries = new LogEntryService(),
-        private readonly CameraService $cameras = new CameraService()
+        private readonly CameraService $cameras = new CameraService(),
+        private readonly VisitDashboardService $visitDashboard = new VisitDashboardService()
     ) {
     }
 
@@ -66,16 +68,22 @@ final class DashboardController extends CameraController
             ? $this->shifts->supervisionDashboard($camerasWithIssues, 8)
             : null;
 
+        $visitsDashboard = hasPermission('cctv.visits.view')
+            ? $this->visitDashboard->operatorPanel()
+            : null;
+
         $this->cameraView('dashboard/index', [
             'title' => 'Central de Cámaras',
             'shiftPanel' => $shiftPanel,
             'supervisionDashboard' => $supervisionDashboard,
+            'visitsDashboard' => $visitsDashboard,
             'activeShiftDashboard' => $activeShiftDashboard,
             'shiftTimeline' => $shiftTimeline,
             'logOrderOptions' => LogEntryService::timelineOrderOptions(),
             'canViewLog' => hasPermission('cctv.log.view'),
             'canViewAllLog' => hasPermission('cctv.log.view_all'),
             'canCreateLog' => hasPermission('cctv.log.create'),
+            'canCreateVisit' => hasPermission('cctv.visits.create'),
             'canCloseShift' => hasPermission('cctv.shifts.close'),
             'canEditLog' => hasPermission('cctv.log.edit'),
             'moduleScripts' => $this->cctvScripts('dashboard.js'),

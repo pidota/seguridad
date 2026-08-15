@@ -30,6 +30,8 @@ $showShiftPanel = hasPermission('cctv.shifts.view');
 
 <?php require __DIR__ . '/supervision.php'; ?>
 
+<?php require __DIR__ . '/visits-panel.php'; ?>
+
 <?php if ($showShiftPanel): ?>
 
     <?php if ($openShift): ?>

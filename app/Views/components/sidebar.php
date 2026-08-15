@@ -8,6 +8,7 @@ $modules = [
 $cctv = [
     ['label' => 'Inicio', 'icon' => 'bi-speedometer2', 'path' => '/cctv', 'permission' => 'cctv.dashboard.view', 'exact' => true],
     ['label' => 'Bitácora', 'icon' => 'bi-journal-text', 'path' => '/cctv/log', 'permission' => 'cctv.log.view'],
+    ['label' => 'Visitas y Solicitudes', 'icon' => 'bi-person-lines-fill', 'path' => '/cctv/visits', 'permission' => 'cctv.visits.view'],
     ['label' => 'Cámaras', 'icon' => 'bi-camera-reels', 'path' => '/cctv/cameras', 'permission' => 'cctv.cameras.view'],
 ];
 $visibleCctv = array_values(array_filter($cctv, static fn (array $item): bool => hasPermission($item['permission'])));

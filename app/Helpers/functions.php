@@ -16,6 +16,17 @@ function env(string $key, mixed $default = null): mixed
     return Env::get($key, $default);
 }
 
+function cctv_config(string $key, mixed $default = null): mixed
+{
+    static $cctv = null;
+
+    if ($cctv === null) {
+        $cctv = require BASE_PATH . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'cctv.php';
+    }
+
+    return $cctv[$key] ?? $default;
+}
+
 function config(string $key, mixed $default = null): mixed
 {
     static $items = [];
@@ -23,6 +34,7 @@ function config(string $key, mixed $default = null): mixed
     if ($items === []) {
         $items['app'] = require BASE_PATH . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'app.php';
         $items['database'] = require BASE_PATH . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'database.php';
+        $items['cctv'] = require BASE_PATH . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'cctv.php';
     }
 
     $segments = explode('.', $key);

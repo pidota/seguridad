@@ -74,6 +74,23 @@ return [
     ['slug' => 'cctv.cameras.view', 'name' => 'Ver cámaras CCTV', 'module' => 'cctv', 'description' => 'Consultar el inventario de cámaras'],
     ['slug' => 'cctv.cameras.manage', 'name' => 'Administrar cámaras CCTV', 'module' => 'cctv', 'description' => 'Crear, editar y dar de baja cámaras'],
 
+    ['slug' => 'cctv.visits.view', 'name' => 'Ver visitas CCTV', 'module' => 'cctv', 'description' => 'Consultar visitas y solicitudes de la oficina'],
+    ['slug' => 'cctv.visits.create', 'name' => 'Registrar visitas CCTV', 'module' => 'cctv', 'description' => 'Registrar visitas generales y solicitudes'],
+    ['slug' => 'cctv.visits.edit', 'name' => 'Editar visitas CCTV', 'module' => 'cctv', 'description' => 'Actualizar visitas registradas'],
+
+    ['slug' => 'cctv.recordings.view', 'name' => 'Ver solicitudes de grabación', 'module' => 'cctv', 'description' => 'Consultar solicitudes de grabación CCTV'],
+    ['slug' => 'cctv.recordings.create', 'name' => 'Crear solicitudes de grabación', 'module' => 'cctv', 'description' => 'Registrar solicitudes de grabación'],
+    ['slug' => 'cctv.recordings.edit', 'name' => 'Editar solicitudes de grabación', 'module' => 'cctv', 'description' => 'Actualizar solicitudes de grabación'],
+    ['slug' => 'cctv.recordings.review', 'name' => 'Revisar solicitudes de grabación', 'module' => 'cctv', 'description' => 'Revisar y cambiar estados operativos'],
+    ['slug' => 'cctv.recordings.approve', 'name' => 'Autorizar entrega de grabación', 'module' => 'cctv', 'description' => 'Autorizar entrega de material grabado'],
+    ['slug' => 'cctv.recordings.deliver', 'name' => 'Entregar grabación CCTV', 'module' => 'cctv', 'description' => 'Registrar entrega de grabación al solicitante'],
+    ['slug' => 'cctv.recordings.view_complaint_document', 'name' => 'Ver documento de denuncia', 'module' => 'cctv', 'description' => 'Descargar respaldo de denuncia'],
+    ['slug' => 'cctv.recordings.verify_complaint', 'name' => 'Verificar denuncia CCTV', 'module' => 'cctv', 'description' => 'Validar antecedentes de denuncia antes de revisión'],
+    ['slug' => 'cctv.recordings.assign', 'name' => 'Asignar solicitudes CCTV', 'module' => 'cctv', 'description' => 'Designar responsable de tramitación'],
+    ['slug' => 'cctv.recordings.export', 'name' => 'Exportar solicitudes CCTV', 'module' => 'cctv', 'description' => 'Exportar solicitudes y reportes (futuro)'],
+    ['slug' => 'cctv.recordings.edit_delivered', 'name' => 'Corregir solicitudes entregadas', 'module' => 'cctv', 'description' => 'Modificar solicitudes ya entregadas'],
+    ['slug' => 'cctv.recordings.cancel', 'name' => 'Anular solicitudes CCTV', 'module' => 'cctv', 'description' => 'Anular solicitudes administrativamente'],
+
     ['slug' => 'cctv.reports.view', 'name' => 'Ver reportes CCTV', 'module' => 'cctv', 'description' => 'Consultar reportes e indicadores'],
     ['slug' => 'cctv.reports.export', 'name' => 'Exportar reportes CCTV', 'module' => 'cctv', 'description' => 'Descargar reportes en formatos exportables'],
 

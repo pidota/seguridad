@@ -1254,6 +1254,8 @@ final class LogEntryService
                 ? null
                 : $this->nullableBool($data['coordination_notified'] ?? null),
             'status' => $status,
+            'related_entity_type' => $this->nullableString($data['related_entity_type'] ?? null),
+            'related_entity_id' => $this->nullableInt($data['related_entity_id'] ?? null),
             'created_by' => $createdBy,
         ];
     }
@@ -1501,6 +1503,40 @@ final class LogEntryService
         $value = trim((string) $value);
 
         return $value === '' ? null : $value;
+    }
+
+    public function createOfficeSummary(
+        int $shiftId,
+        int $operatorId,
+        string $logTypeSlug,
+        string $summary,
+        string $eventDate,
+        string $eventTime,
+        ?string $relatedEntityType = null,
+        ?int $relatedEntityId = null
+    ): int {
+        $logType = $this->catalogs->findLogTypeBySlug($logTypeSlug);
+        if ($logType === null) {
+            throw new HttpException(422, 'No está configurado el tipo de registro para la visita.');
+        }
+
+        $payload = $this->buildPayload([
+            'shift_id' => $shiftId,
+            'log_type_id' => (int) ($logType['id'] ?? 0),
+            'event_date' => $eventDate,
+            'event_time' => $eventTime,
+            'observations' => $summary,
+            'related_entity_type' => $relatedEntityType,
+            'related_entity_id' => $relatedEntityId,
+        ], $operatorId);
+
+        $this->assertShiftIsOpen($shiftId, $operatorId);
+        $id = $this->entries->create($payload);
+        $created = $this->entries->findById($id);
+        $presented = $created ? $this->present($created) : $payload;
+        $this->cctvAudit->logEntryCreated($id, $presented);
+
+        return $id;
     }
 
     private function assertShiftIsOpen(int $shiftId, int $operatorId): void

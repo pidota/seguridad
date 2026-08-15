@@ -23,6 +23,11 @@ final class CctvAuditService
     public const EVENT_INCIDENT_UPDATED = 'incident_updated';
     public const EVENT_COORDINATION_REGISTERED = 'coordination_registered';
     public const EVENT_CAMERA_STATUS_CHANGED = 'camera_status_changed';
+    public const EVENT_OFFICE_VISIT_CREATED = 'office_visit_created';
+    public const EVENT_RECORDING_REQUEST_CREATED = 'recording_request_created';
+    public const EVENT_RECORDING_REQUEST_COMPLAINT = 'recording_request_complaint_registered';
+    public const EVENT_RECORDING_REQUEST_STATUS = 'recording_request_status_changed';
+    public const EVENT_RECORDING_REQUEST_DELIVERED = 'recording_request_delivered';
 
     private const TEXT_EXCERPT = 120;
 
@@ -440,6 +445,86 @@ final class CctvAuditService
         $payload['cctv_event'] = $event;
 
         return $payload;
+    }
+
+    /**
+     * @param array<string, mixed> $snapshot
+     */
+    public function officeVisitCreated(int $id, array $snapshot): void
+    {
+        $this->audit->created(
+            AuditService::MODULE_CCTV,
+            AuditService::RESOURCE_CCTV_OFFICE_VISIT,
+            $id,
+            $this->withEvent(self::EVENT_OFFICE_VISIT_CREATED, $snapshot)
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $snapshot
+     */
+    public function recordingRequestCreated(int $id, array $snapshot): void
+    {
+        $this->audit->created(
+            AuditService::MODULE_CCTV,
+            AuditService::RESOURCE_CCTV_RECORDING_REQUEST,
+            $id,
+            $this->withEvent(self::EVENT_RECORDING_REQUEST_CREATED, $snapshot)
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $old
+     * @param array<string, mixed> $new
+     */
+    public function recordingRequestComplaintRegistered(int $id, array $old, array $new): void
+    {
+        $this->audit->updated(
+            AuditService::MODULE_CCTV,
+            AuditService::RESOURCE_CCTV_RECORDING_REQUEST,
+            $id,
+            $this->withEvent(self::EVENT_RECORDING_REQUEST_COMPLAINT, $old),
+            $this->withEvent(self::EVENT_RECORDING_REQUEST_COMPLAINT, $new)
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $old
+     * @param array<string, mixed> $new
+     */
+    public function recordingRequestStatusChanged(int $id, array $old, array $new, string $previous, string $next): void
+    {
+        $payloadOld = $this->withEvent(self::EVENT_RECORDING_REQUEST_STATUS, array_merge($old, [
+            'previous_status' => $previous,
+            'new_status' => $next,
+        ]));
+        $payloadNew = $this->withEvent(self::EVENT_RECORDING_REQUEST_STATUS, array_merge($new, [
+            'previous_status' => $previous,
+            'new_status' => $next,
+        ]));
+
+        $this->audit->updated(
+            AuditService::MODULE_CCTV,
+            AuditService::RESOURCE_CCTV_RECORDING_REQUEST,
+            $id,
+            $payloadOld,
+            $payloadNew
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $old
+     * @param array<string, mixed> $new
+     */
+    public function recordingRequestDelivered(int $id, array $old, array $new): void
+    {
+        $this->audit->updated(
+            AuditService::MODULE_CCTV,
+            AuditService::RESOURCE_CCTV_RECORDING_REQUEST,
+            $id,
+            $this->withEvent(self::EVENT_RECORDING_REQUEST_DELIVERED, $old),
+            $this->withEvent(self::EVENT_RECORDING_REQUEST_DELIVERED, $new)
+        );
     }
 
     private function excerpt(string $text, int $limit = self::TEXT_EXCERPT): string

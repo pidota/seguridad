@@ -1,0 +1,30 @@
+CREATE TABLE IF NOT EXISTS cctv_office_visits (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    cctv_shift_id INT UNSIGNED NOT NULL,
+    visitor_type VARCHAR(30) NOT NULL,
+    visit_date DATE NOT NULL,
+    arrival_time TIME NOT NULL,
+    departure_time TIME NULL,
+    requester_name VARCHAR(180) NOT NULL,
+    requester_rut VARCHAR(20) NULL,
+    requester_phone VARCHAR(40) NULL,
+    requester_email VARCHAR(180) NULL,
+    organization VARCHAR(180) NULL,
+    reason TEXT NOT NULL,
+    recording_requested TINYINT(1) NOT NULL DEFAULT 0,
+    created_by INT UNSIGNED NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    INDEX idx_cctv_office_visits_shift (cctv_shift_id),
+    INDEX idx_cctv_office_visits_date (visit_date),
+    INDEX idx_cctv_office_visits_type (visitor_type),
+    INDEX idx_cctv_office_visits_rut (requester_rut),
+    INDEX idx_cctv_office_visits_name (requester_name),
+    INDEX idx_cctv_office_visits_created_by (created_by),
+    INDEX idx_cctv_office_visits_deleted_at (deleted_at),
+    CONSTRAINT fk_cctv_office_visits_shift
+        FOREIGN KEY (cctv_shift_id) REFERENCES cctv_shifts(id) ON DELETE RESTRICT,
+    CONSTRAINT fk_cctv_office_visits_created_by
+        FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

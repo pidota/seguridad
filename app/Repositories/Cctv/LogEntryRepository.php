@@ -561,12 +561,14 @@ final class LogEntryRepository
                     cctv_shift_id, cctv_log_type_id, cctv_incident_type_id, cctv_technical_issue_type_id,
                     incident_type_other, technical_issue_other,
                     cctv_camera_id, cctv_equipment_id, camera_status_applied, sector_id, occurred_at, observations,
-                    police_arrived, police_arrival_time, coordination_notified, status, created_by
+                    police_arrived, police_arrival_time, coordination_notified, status,
+                    related_entity_type, related_entity_id, created_by
                 ) VALUES (
                     :cctv_shift_id, :cctv_log_type_id, :cctv_incident_type_id, :cctv_technical_issue_type_id,
                     :incident_type_other, :technical_issue_other,
                     :cctv_camera_id, :cctv_equipment_id, :camera_status_applied, :sector_id, :occurred_at, :observations,
-                    :police_arrived, :police_arrival_time, :coordination_notified, :status, :created_by
+                    :police_arrived, :police_arrival_time, :coordination_notified, :status,
+                    :related_entity_type, :related_entity_id, :created_by
                 )';
 
         $stmt = $this->db()->prepare($sql);
@@ -587,6 +589,8 @@ final class LogEntryRepository
             'police_arrival_time' => $data['police_arrival_time'] ?? null,
             'coordination_notified' => $data['coordination_notified'] ?? null,
             'status' => $data['status'] ?? LogEntry::STATUS_REGISTERED,
+            'related_entity_type' => $data['related_entity_type'] ?? null,
+            'related_entity_id' => $data['related_entity_id'] ?? null,
             'created_by' => $data['created_by'],
         ]);
 

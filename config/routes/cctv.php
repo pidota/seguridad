@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Controllers\Cctv\CameraController;
 use App\Controllers\Cctv\LogEntryController;
+use App\Controllers\Cctv\OfficeVisitController;
 use App\Controllers\Cctv\ShiftController;
 use App\Controllers\Camera\DashboardController;
 use App\Controllers\Camera\EventController;
@@ -35,6 +36,25 @@ $router->get('/log/{id}', [LogEntryController::class, 'show'], 'can:cctv.log.vie
 $router->get('/log/{id}/edit', [EventController::class, 'edit'], 'can:cctv.log.edit', 'cctv.log.edit');
 $router->put('/log/{id}', [EventController::class, 'update'], 'can:cctv.log.edit', 'cctv.log.update');
 $router->delete('/log/{id}', [LogEntryController::class, 'destroy'], 'can:cctv.log.delete', 'cctv.log.destroy');
+
+$router->get('/visits', [OfficeVisitController::class, 'index'], 'can:cctv.visits.view', 'cctv.visits.index');
+$router->get('/visits/create', [OfficeVisitController::class, 'create'], 'can:cctv.visits.create', 'cctv.visits.create');
+$router->post('/visits', [OfficeVisitController::class, 'store'], 'can:cctv.visits.create', 'cctv.visits.store');
+$router->get('/visits/search-rut', [OfficeVisitController::class, 'searchByRut'], 'can:cctv.recordings.view', 'cctv.visits.search_rut');
+$router->get('/visits/{id}', [OfficeVisitController::class, 'show'], 'can:cctv.visits.view', 'cctv.visits.show');
+$router->post('/visits/{id}/departure', [OfficeVisitController::class, 'registerDeparture'], 'can:cctv.visits.edit', 'cctv.visits.departure');
+
+$router->get('/recording-requests/{id}', [OfficeVisitController::class, 'showRecording'], 'can:cctv.recordings.view', 'cctv.recordings.show');
+$router->get('/recording-requests/{id}/print', [OfficeVisitController::class, 'printRecording'], 'can:cctv.recordings.view', 'cctv.recordings.print');
+$router->get('/recording-requests/{id}/receipt', [OfficeVisitController::class, 'receiptRecording'], 'can:cctv.recordings.view', 'cctv.recordings.receipt');
+$router->post('/recording-requests/{id}/complaint', [OfficeVisitController::class, 'registerComplaint'], 'can:cctv.recordings.edit', 'cctv.recordings.complaint');
+$router->post('/recording-requests/{id}/verify-complaint', [OfficeVisitController::class, 'verifyComplaint'], 'can:cctv.recordings.verify_complaint', 'cctv.recordings.verify_complaint');
+$router->post('/recording-requests/{id}/status', [OfficeVisitController::class, 'updateStatus'], 'can:cctv.recordings.review', 'cctv.recordings.status');
+$router->post('/recording-requests/{id}/preserve', [OfficeVisitController::class, 'preserveRecording'], 'can:cctv.recordings.review', 'cctv.recordings.preserve');
+$router->post('/recording-requests/{id}/assign', [OfficeVisitController::class, 'assignRecording'], 'can:cctv.recordings.assign', 'cctv.recordings.assign');
+$router->post('/recording-requests/{id}/cancel', [OfficeVisitController::class, 'cancelRecording'], 'can:cctv.recordings.cancel', 'cctv.recordings.cancel');
+$router->post('/recording-requests/{id}/deliver', [OfficeVisitController::class, 'deliver'], 'can:cctv.recordings.deliver', 'cctv.recordings.deliver');
+$router->get('/recording-requests/{id}/complaint-document', [OfficeVisitController::class, 'complaintDocument'], 'can:cctv.recordings.view_complaint_document', 'cctv.recordings.complaint_document');
 
 $router->get('/cameras', [CameraController::class, 'index'], 'can:cctv.cameras.view', 'cctv.cameras.index');
 $router->get('/cameras/create', [CameraController::class, 'create'], 'can:cctv.cameras.manage', 'cctv.cameras.create');

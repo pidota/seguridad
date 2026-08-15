@@ -38,6 +38,8 @@ final class AuditService
     public const RESOURCE_CCTV_SHIFT = 'cctv_shifts';
     public const RESOURCE_CCTV_CAMERA = 'cctv_cameras';
     public const RESOURCE_CCTV_LOG_ENTRY = 'cctv_log_entries';
+    public const RESOURCE_CCTV_OFFICE_VISIT = 'cctv_office_visits';
+    public const RESOURCE_CCTV_RECORDING_REQUEST = 'cctv_recording_requests';
 
     /** @var list<string> */
     private const SENSITIVE = [
@@ -146,6 +148,8 @@ final class AuditService
             self::RESOURCE_CCTV_SHIFT => 'Turno CCTV',
             self::RESOURCE_CCTV_CAMERA => 'Cámara CCTV',
             self::RESOURCE_CCTV_LOG_ENTRY => 'Entrada bitácora CCTV',
+            self::RESOURCE_CCTV_OFFICE_VISIT => 'Visita oficina CCTV',
+            self::RESOURCE_CCTV_RECORDING_REQUEST => 'Solicitud grabación CCTV',
             'users' => 'Usuario',
             'roles' => 'Rol',
             'sectors' => 'Sector',
