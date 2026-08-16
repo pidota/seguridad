@@ -86,6 +86,10 @@ final class DashboardController extends CameraController
             'canCreateVisit' => hasPermission('cctv.visits.create'),
             'canCloseShift' => hasPermission('cctv.shifts.close'),
             'canEditLog' => hasPermission('cctv.log.edit'),
+            'canViewCamerasMap' => hasPermission('cctv.cameras.view'),
+            'camerasMapCount' => hasPermission('cctv.cameras.view')
+                ? count($this->cameras->listForMap(!hasPermission('cctv.cameras.manage')))
+                : 0,
             'moduleScripts' => $this->cctvScripts('dashboard.js'),
         ]);
     }

@@ -34,6 +34,17 @@ abstract class CameraController extends Controller
     }
 
     /**
+     * @return array<string, mixed>
+     */
+    protected function mapViewData(): array
+    {
+        return [
+            'leafletAssets' => true,
+            'mapConfig' => (new \App\Services\Cctv\CameraService())->mapConfig(),
+        ];
+    }
+
+    /**
      * @return list<array{label: string, path: string, permission: string, icon: string, exact?: bool}>
      */
     protected function navigation(): array
@@ -44,6 +55,7 @@ abstract class CameraController extends Controller
             ['label' => 'Bitácora', 'path' => '/cctv/log', 'permission' => 'cctv.log.view', 'icon' => 'bi-journal-text'],
             ['label' => 'Visitas y Solicitudes', 'path' => '/cctv/visits', 'permission' => 'cctv.visits.view', 'icon' => 'bi-person-lines-fill'],
             ['label' => 'Cámaras', 'path' => '/cctv/cameras', 'permission' => 'cctv.cameras.view', 'icon' => 'bi-camera-reels'],
+            ['label' => 'Mapa de cámaras', 'path' => '/cctv/cameras/map', 'permission' => 'cctv.cameras.view', 'icon' => 'bi-geo-alt'],
         ];
 
         return array_values(array_filter(

@@ -57,6 +57,7 @@ $router->post('/recording-requests/{id}/deliver', [OfficeVisitController::class,
 $router->get('/recording-requests/{id}/complaint-document', [OfficeVisitController::class, 'complaintDocument'], 'can:cctv.recordings.view_complaint_document', 'cctv.recordings.complaint_document');
 
 $router->get('/cameras', [CameraController::class, 'index'], 'can:cctv.cameras.view', 'cctv.cameras.index');
+$router->get('/cameras/map', [CameraController::class, 'map'], 'can:cctv.cameras.view', 'cctv.cameras.map');
 $router->get('/cameras/create', [CameraController::class, 'create'], 'can:cctv.cameras.manage', 'cctv.cameras.create');
 $router->post('/cameras', [CameraController::class, 'store'], 'can:cctv.cameras.manage', 'cctv.cameras.store');
 $router->get('/cameras/{id}/edit', [CameraController::class, 'edit'], 'can:cctv.cameras.manage', 'cctv.cameras.edit');

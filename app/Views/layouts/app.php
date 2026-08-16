@@ -12,6 +12,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="<?= e(asset('css/app.css')) ?>" rel="stylesheet">
+    <?php if (!empty($leafletAssets)): ?>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+    <?php endif; ?>
 </head>
 <body class="app-body">
     <div class="app-shell">
@@ -30,6 +33,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="<?= e(asset('js/app.js')) ?>"></script>
+    <?php if (!empty($leafletAssets)): ?>
+        <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+    <?php endif; ?>
     <?php foreach ($moduleScripts ?? [] as $script): ?>
         <script src="<?= e($script) ?>"></script>
     <?php endforeach; ?>

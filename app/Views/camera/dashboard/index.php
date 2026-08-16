@@ -28,6 +28,8 @@ $showShiftPanel = hasPermission('cctv.shifts.view');
 
 <?= cameras_nav($camerasNav ?? []) ?>
 
+<?php require __DIR__ . '/cameras-map-card.php'; ?>
+
 <?php require __DIR__ . '/supervision.php'; ?>
 
 <?php require __DIR__ . '/visits-panel.php'; ?>

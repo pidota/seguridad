@@ -122,12 +122,35 @@ final class CameraRepository
         return $stmt->fetchAll() ?: [];
     }
 
+    /**
+     * @return list<array<string, mixed>>
+     */
+    public function listWithCoordinates(bool $activeOnly = false): array
+    {
+        $sql = $this->selectSql() . '
+             WHERE c.deleted_at IS NULL
+               AND c.latitude IS NOT NULL
+               AND c.longitude IS NOT NULL';
+
+        if ($activeOnly) {
+            $sql .= ' AND c.active = 1';
+        }
+
+        $sql .= ' ORDER BY c.code ASC, c.name ASC';
+
+        $stmt = $this->db()->query($sql);
+
+        return $stmt->fetchAll() ?: [];
+    }
+
     public function create(array $data): int
     {
         $sql = 'INSERT INTO cctv_cameras (
-                    code, name, sector_id, location, camera_type, status, active
+                    code, name, sector_id, location, latitude, longitude,
+                    camera_type, status, active
                 ) VALUES (
-                    :code, :name, :sector_id, :location, :camera_type, :status, :active
+                    :code, :name, :sector_id, :location, :latitude, :longitude,
+                    :camera_type, :status, :active
                 )';
 
         $stmt = $this->db()->prepare($sql);
@@ -143,6 +166,8 @@ final class CameraRepository
                     name = :name,
                     sector_id = :sector_id,
                     location = :location,
+                    latitude = :latitude,
+                    longitude = :longitude,
                     camera_type = :camera_type,
                     status = :status,
                     active = :active,

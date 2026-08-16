@@ -24,6 +24,8 @@ class CameraStoreValidator
             'name' => 'required|min:2|max:180',
             'sector_id' => 'nullable|integer',
             'location' => 'nullable|max:255',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
             'camera_type' => 'required|in:' . $types,
             'status' => 'required|in:' . $statuses,
             'active' => 'nullable|in:0,1',

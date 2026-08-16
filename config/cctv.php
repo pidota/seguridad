@@ -16,4 +16,7 @@ return [
     'recording_request_pending_alert_days' => (int) env('CCTV_RECORDING_PENDING_ALERT_DAYS', 3),
     'complaint_document_max_bytes' => (int) env('CCTV_COMPLAINT_DOCUMENT_MAX_BYTES', 5_242_880),
     'complaint_document_allowed_extensions' => ['pdf', 'jpg', 'jpeg', 'png'],
+    'map_default_latitude' => (float) env('CCTV_MAP_DEFAULT_LAT', -33.4489),
+    'map_default_longitude' => (float) env('CCTV_MAP_DEFAULT_LNG', -70.6693),
+    'map_default_zoom' => (int) env('CCTV_MAP_DEFAULT_ZOOM', 13),
 ];

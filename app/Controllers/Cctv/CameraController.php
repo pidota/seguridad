@@ -43,14 +43,14 @@ final class CameraController extends CctvLayoutController
 
     public function create(): void
     {
-        $this->cameraView('cameras/form', [
+        $this->cameraView('cameras/form', array_merge([
             'title' => 'Registrar cámara',
             'record' => $this->cameras->defaults(),
             'cameraTypes' => CameraCatalog::types(),
             'statuses' => CameraCatalog::statuses(),
             'sectors' => $this->cameras->sectorOptions(),
             'moduleScripts' => $this->cctvScripts('cameras.js'),
-        ]);
+        ], $this->mapViewData()));
     }
 
     public function store(Request $request): void
@@ -84,14 +84,14 @@ final class CameraController extends CctvLayoutController
             $this->failAndRedirect($e, url('/cctv/cameras'));
         }
 
-        $this->cameraView('cameras/form', [
+        $this->cameraView('cameras/form', array_merge([
             'title' => 'Editar cámara',
             'record' => $record,
             'cameraTypes' => CameraCatalog::types(),
             'statuses' => CameraCatalog::statuses(),
             'sectors' => $this->cameras->sectorOptions(),
             'moduleScripts' => $this->cctvScripts('cameras.js'),
-        ]);
+        ], $this->mapViewData()));
     }
 
     public function update(Request $request, string $id): void
@@ -134,6 +134,19 @@ final class CameraController extends CctvLayoutController
 
         Session::flashAlert('success', 'Cámara eliminada', 'El registro fue dado de baja del inventario.');
         $this->redirect(url('/cctv/cameras'));
+    }
+
+    public function map(): void
+    {
+        $canManage = hasPermission('cctv.cameras.manage');
+        $cameras = $this->cameras->listForMap(!$canManage);
+
+        $this->cameraView('cameras/map', array_merge([
+            'title' => 'Mapa de cámaras',
+            'cameras' => $cameras,
+            'canManage' => $canManage,
+            'moduleScripts' => $this->cctvScripts('cameras-map.js'),
+        ], $this->mapViewData()));
     }
 
     /**

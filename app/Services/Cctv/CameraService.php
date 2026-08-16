@@ -71,6 +71,8 @@ final class CameraService
             'name' => '',
             'sector_id' => '',
             'location' => '',
+            'latitude' => '',
+            'longitude' => '',
             'camera_type' => CameraCatalog::TYPE_FIXED,
             'status' => CameraCatalog::STATUS_OPERATIONAL,
             'active' => 1,
@@ -114,6 +116,8 @@ final class CameraService
             'name' => $current['name'],
             'sector_id' => $current['sector_id'],
             'location' => $current['location'],
+            'latitude' => $current['latitude'] ?? null,
+            'longitude' => $current['longitude'] ?? null,
             'camera_type' => $current['camera_type'],
             'status' => $status,
             'active' => $current['active'],
@@ -186,6 +190,29 @@ final class CameraService
     }
 
     /**
+     * @return list<array<string, mixed>>
+     */
+    public function listForMap(bool $activeOnly = false): array
+    {
+        return array_map(
+            fn (array $row): array => $this->present($row),
+            $this->cameras->listWithCoordinates($activeOnly)
+        );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function mapConfig(): array
+    {
+        return [
+            'defaultLat' => (float) cctv_config('map_default_latitude', -33.4489),
+            'defaultLng' => (float) cctv_config('map_default_longitude', -70.6693),
+            'defaultZoom' => (int) cctv_config('map_default_zoom', 13),
+        ];
+    }
+
+    /**
      * @param array<string, mixed> $row
      * @return array<string, mixed>
      */
@@ -201,6 +228,10 @@ final class CameraService
         $row['sector_label'] = trim((string) ($row['sector_name'] ?? '')) !== ''
             ? (string) $row['sector_name']
             : '—';
+        $row['has_coordinates'] = $row['latitude'] !== null
+            && $row['longitude'] !== null
+            && $row['latitude'] !== ''
+            && $row['longitude'] !== '';
 
         return $row;
     }
@@ -248,10 +279,30 @@ final class CameraService
             'name' => $name,
             'sector_id' => $sectorId,
             'location' => $this->nullable($data['location'] ?? null),
+            'latitude' => $this->nullableCoordinate($data['latitude'] ?? null, -90.0, 90.0),
+            'longitude' => $this->nullableCoordinate($data['longitude'] ?? null, -180.0, 180.0),
             'camera_type' => $cameraType,
             'status' => $status,
             'active' => !empty($data['active']) ? 1 : 0,
         ];
+    }
+
+    private function nullableCoordinate(mixed $value, float $min, float $max): ?float
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        if (!is_numeric($value)) {
+            throw new HttpException(422, 'Las coordenadas del mapa no son válidas.');
+        }
+
+        $float = (float) $value;
+        if ($float < $min || $float > $max) {
+            throw new HttpException(422, 'Las coordenadas del mapa están fuera de rango.');
+        }
+
+        return round($float, 7);
     }
 
     private function nullable(mixed $value): ?string

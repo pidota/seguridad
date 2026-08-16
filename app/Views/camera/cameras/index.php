@@ -14,9 +14,12 @@ $hasFilters = $query !== [];
             <?php endif; ?>
         </p>
     </div>
-    <?php if (!empty($canManage)): ?>
-        <a href="<?= e(url('/cctv/cameras/create')) ?>" class="btn btn-navy">Registrar cámara</a>
-    <?php endif; ?>
+    <div class="d-flex gap-2 flex-wrap">
+        <a href="<?= e(url('/cctv/cameras/map')) ?>" class="btn btn-outline-navy">Ver mapa</a>
+        <?php if (!empty($canManage)): ?>
+            <a href="<?= e(url('/cctv/cameras/create')) ?>" class="btn btn-navy">Registrar cámara</a>
+        <?php endif; ?>
+    </div>
 </section>
 
 <?= cameras_nav($camerasNav ?? []) ?>

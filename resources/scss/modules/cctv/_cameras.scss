@@ -136,3 +136,22 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+.cctv-map-picker,
+.cctv-map-overview {
+  width: 100%;
+  min-height: 320px;
+  border-radius: 0.75rem;
+  border: 1px solid rgba($navy, 0.12);
+  overflow: hidden;
+  background: rgba($navy, 0.04);
+}
+
+.cctv-map-overview {
+  min-height: 520px;
+}
+
+.cctv-map-popup {
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
