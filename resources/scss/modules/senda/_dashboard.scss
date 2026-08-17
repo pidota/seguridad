@@ -139,6 +139,11 @@
   background: rgba($gold, 0.22);
 }
 
+.senda-choice-card--followup .senda-choice-card__icon {
+  background: rgba($navy, 0.12);
+  color: darken($navy, 4%);
+}
+
 .senda-choice-card__label {
   display: block;
   font-family: $serif;

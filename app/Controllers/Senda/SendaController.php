@@ -49,7 +49,7 @@ abstract class SendaController extends Controller
                 'Tipo de ingreso',
                 'Seleccione el tipo de ingreso antes de continuar.'
             );
-            $this->redirect($next === 'attention' ? url('/senda') . '?next=attention' : url('/senda'));
+            $this->redirect($next === 'attention' ? url('/senda') . '?next=attention' : url('/senda') . '?step=tipo');
         }
 
         return $type;
@@ -71,10 +71,8 @@ abstract class SendaController extends Controller
     protected function navigation(): array
     {
         $items = [
-            ['label' => 'Dashboard', 'path' => '/senda/dashboard', 'permission' => 'senda.dashboard.view', 'icon' => 'bi-speedometer2', 'exact' => true],
             ['label' => 'Registro de Atención', 'path' => '/senda/attentions', 'permission' => 'senda.attentions.view', 'icon' => 'bi-clipboard2-pulse', 'exact' => false],
             ['label' => 'Ficha de Referencia', 'path' => '/senda/referrals', 'permission' => 'senda.referrals.view', 'icon' => 'bi-file-earmark-medical', 'exact' => false],
-            ['label' => 'Seguimiento', 'path' => '/senda/follow-ups', 'permission' => 'senda.followups.view', 'icon' => 'bi-arrow-repeat', 'exact' => false],
             ['label' => 'Personas', 'path' => '/senda/people', 'permission' => 'senda.people.view', 'icon' => 'bi-people', 'exact' => false],
             ['label' => 'Estadísticas', 'path' => '/senda/statistics', 'permission' => 'senda.statistics.view', 'icon' => 'bi-graph-up', 'exact' => false],
         ];

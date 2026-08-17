@@ -14,11 +14,9 @@ $cctv = [
 $visibleCctv = array_values(array_filter($cctv, static fn (array $item): bool => hasPermission($item['permission'])));
 $cctvOpen = hasPermission('cctv.access') && is_active_path('/cctv');
 $senda = [
-    ['label' => 'Tipo de ingreso', 'icon' => 'bi-door-open', 'path' => '/senda', 'permission' => 'senda.dashboard.view', 'exact' => true],
-    ['label' => 'Dashboard', 'icon' => 'bi-speedometer2', 'path' => '/senda/dashboard', 'permission' => 'senda.dashboard.view', 'exact' => true],
-    ['label' => 'Registro de Atención', 'icon' => 'bi-clipboard2-pulse', 'path' => '/senda/attentions', 'permission' => 'senda.attentions.view'],
+    ['label' => 'Atención', 'icon' => 'bi-clipboard2-pulse', 'path' => '/senda', 'permission' => 'senda.dashboard.view', 'exact' => true],
+    ['label' => 'Registro de Atención', 'icon' => 'bi-journal-medical', 'path' => '/senda/attentions', 'permission' => 'senda.attentions.view'],
     ['label' => 'Ficha de Referencia', 'icon' => 'bi-file-earmark-medical', 'path' => '/senda/referrals', 'permission' => 'senda.referrals.view'],
-    ['label' => 'Seguimiento', 'icon' => 'bi-arrow-repeat', 'path' => '/senda/follow-ups', 'permission' => 'senda.followups.view'],
     ['label' => 'Personas', 'icon' => 'bi-people', 'path' => '/senda/people', 'permission' => 'senda.people.view'],
     ['label' => 'Estadísticas', 'icon' => 'bi-graph-up', 'path' => '/senda/statistics', 'permission' => 'senda.statistics.view'],
 ];

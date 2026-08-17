@@ -207,9 +207,11 @@ final class PeopleController extends SendaController
 
     private function searchUrl(string $next): string
     {
-        $url = url('/senda/people/create');
+        if ($next === 'attention') {
+            return url('/senda');
+        }
 
-        return $next === '' ? $url : $url . '?next=' . rawurlencode($next);
+        return url('/senda/people/create');
     }
 
     private function afterPersonUrl(int $id, string $next): string

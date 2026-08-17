@@ -1,5 +1,5 @@
 /**
- * Comportamiento visual del tipo de ingreso.
+ * Comportamiento visual del menú Atención.
  * La persistencia y las reglas las valida PHP.
  */
 document.addEventListener('DOMContentLoaded', () => {
@@ -14,17 +14,20 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const label = form.querySelector('.senda-choice-card__label');
-            const title = label ? label.textContent.trim() : 'Tipo de ingreso';
+            const title = label ? label.textContent.trim() : 'Atención';
+            const isFollowUp = form.dataset.menuAction === 'followup';
 
             event.preventDefault();
             Swal.fire({
                 icon: 'question',
-                title: 'Confirmar tipo de ingreso',
-                text: 'Se usará «' + title + '» en las atenciones de esta sesión.',
+                title: isFollowUp ? 'Ir a seguimiento' : 'Confirmar tipo de ingreso',
+                text: isFollowUp
+                    ? 'Se abrirá el módulo de seguimiento SENDA.'
+                    : 'Se usará «' + title + '» en las atenciones de esta sesión.',
                 showCancelButton: true,
                 confirmButtonColor: '#0b1f33',
                 cancelButtonColor: '#5c6774',
-                confirmButtonText: 'Continuar',
+                confirmButtonText: isFollowUp ? 'Continuar' : 'Continuar',
                 cancelButtonText: 'Cancelar',
             }).then((result) => {
                 if (result.isConfirmed) {

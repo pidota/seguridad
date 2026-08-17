@@ -14,6 +14,7 @@ use Core\Router;
 /** @var Router $router */
 
 $router->get('/', [EntryTypeController::class, 'index'], 'can:senda.dashboard.view', 'senda.entry');
+$router->post('/lookup', [EntryTypeController::class, 'lookup'], 'can:senda.people.create,senda.attentions.create', 'senda.entry.lookup');
 $router->post('/ingreso', [EntryTypeController::class, 'store'], 'can:senda.dashboard.view', 'senda.entry.store');
 $router->get('/dashboard', [DashboardController::class, 'index'], 'can:senda.dashboard.view', 'senda.dashboard');
 

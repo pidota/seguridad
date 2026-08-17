@@ -200,7 +200,7 @@ final class AttentionController extends SendaController
                 'Identificar persona',
                 'Busque el RUT antes de registrar la atención. Si ya existe, utilice ese registro.'
             );
-            $this->redirect(url('/senda/people/create') . '?next=attention');
+            $this->redirect(url('/senda'));
         }
 
         return $person;

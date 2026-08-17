@@ -88,6 +88,6 @@
             </div>
         </div>
         <button class="btn btn-navy" type="submit">Guardar</button>
-        <a class="btn btn-outline-navy" href="<?= e($isEdit ? url('/senda/people/' . $record['id']) : url('/senda/people/create')) ?>">Cancelar</a>
+        <a class="btn btn-outline-navy" href="<?= e($isEdit ? url('/senda/people/' . $record['id']) : (($next ?? '') === 'attention' ? url('/senda') : url('/senda/people/create'))) ?>">Cancelar</a>
     </form>
 </div>

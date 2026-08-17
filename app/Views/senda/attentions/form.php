@@ -25,7 +25,7 @@ $institutionTypes = $institutionTypes ?? [];
         ], null) ?>
         <?php if (!$isEdit): ?>
             <p class="mt-2 mb-0">
-                <a href="<?= e(url('/senda/people/create') . '?next=attention') ?>">Cambiar persona</a>
+                <a href="<?= e(url('/senda')) ?>">Cambiar persona</a>
             </p>
         <?php endif; ?>
     </div>
