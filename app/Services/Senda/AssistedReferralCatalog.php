@@ -6,17 +6,15 @@ namespace App\Services\Senda;
 
 final class AssistedReferralCatalog
 {
+    public const REQUESTING_DEVICE = 'SENDA PREVIENE';
+
     /**
      * @return list<array{value: string, label: string}>
      */
     public static function requestTypes(): array
     {
         return [
-            ['value' => 'ingreso_ambulatorio', 'label' => 'Ingreso a tratamiento ambulatorio'],
-            ['value' => 'ingreso_residencial', 'label' => 'Ingreso a tratamiento residencial'],
-            ['value' => 'evaluacion', 'label' => 'Evaluación diagnóstica'],
-            ['value' => 'continuidad', 'label' => 'Continuidad de tratamiento'],
-            ['value' => 'otra', 'label' => 'Otra'],
+            ['value' => 'ingreso_tratamiento', 'label' => 'Ingreso a tratamiento'],
         ];
     }
 
@@ -40,12 +38,88 @@ final class AssistedReferralCatalog
     /**
      * @return list<array{value: string, label: string}>
      */
+    public static function familyApplicantRelationships(): array
+    {
+        return [
+            ['value' => 'mama', 'label' => 'Mama'],
+            ['value' => 'papa', 'label' => 'Papa'],
+            ['value' => 'hermano_a', 'label' => 'Hermano(a)'],
+            ['value' => 'conyuge', 'label' => 'Conyuge'],
+            ['value' => 'pareja', 'label' => 'Pareja'],
+            ['value' => 'tio_a', 'label' => 'Tio(a)'],
+            ['value' => 'otros', 'label' => 'Otros'],
+        ];
+    }
+
+    /**
+     * @return list<array{value: string, label: string}>
+     */
+    public static function institutionalApplicantRelationships(): array
+    {
+        return [
+            ['value' => 'cesfam', 'label' => 'Cesfam'],
+            ['value' => 'municipalidad', 'label' => 'Municipalidad'],
+            ['value' => 'otros', 'label' => 'Otros'],
+        ];
+    }
+
+    /**
+     * @return list<array{value: string, label: string}>
+     */
+    public static function applicantRelationshipsForKind(string $kind): array
+    {
+        return match ($kind) {
+            'familiar' => self::familyApplicantRelationships(),
+            'institucional' => self::institutionalApplicantRelationships(),
+            default => [],
+        };
+    }
+
+    public static function isValidApplicantRelationship(string $kind, string $value): bool
+    {
+        foreach (self::applicantRelationshipsForKind($kind) as $option) {
+            if ($option['value'] === $value) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static function applicantRelationshipLabel(mixed $value): string
+    {
+        $needle = trim((string) $value);
+
+        if ($needle === '') {
+            return '—';
+        }
+
+        foreach ([
+            ...self::familyApplicantRelationships(),
+            ...self::institutionalApplicantRelationships(),
+        ] as $option) {
+            if ($option['value'] === $needle) {
+                return $option['label'];
+            }
+        }
+
+        return match ($needle) {
+            'familiar' => 'Familiar',
+            'institucional' => 'Institucional',
+            'otro' => 'Otro',
+            default => $needle,
+        };
+    }
+
+    /**
+     * @return list<array{value: string, label: string}>
+     * @deprecated Use applicantRelationshipsForKind() instead.
+     */
     public static function applicantRelationships(): array
     {
         return [
-            ['value' => 'familiar', 'label' => 'Familiar'],
-            ['value' => 'institucional', 'label' => 'Institucional'],
-            ['value' => 'otro', 'label' => 'Otro'],
+            ...self::familyApplicantRelationships(),
+            ...self::institutionalApplicantRelationships(),
         ];
     }
 

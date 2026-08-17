@@ -151,7 +151,7 @@ final class AttentionService
         $data['senda_person_id'] = $current['senda_person_id'];
         $payload = $this->payload($data, $id);
 
-        unset($payload['attention_number'], $payload['senda_person_id'], $payload['entry_type'], $payload['created_by']);
+        unset($payload['attention_number'], $payload['senda_person_id'], $payload['created_by']);
 
         $this->attentions->update($id, $payload);
         $updated = $this->attentions->findById($id);

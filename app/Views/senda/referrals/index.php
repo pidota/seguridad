@@ -64,9 +64,7 @@
                                     <a class="btn btn-outline-navy btn-sm" href="<?= e(url('/senda/referrals/' . $item['id'])) ?>">Ver</a>
                                 <?php endif; ?>
                                 <?php if (hasPermission('senda.referrals.edit')): ?>
-                                    <a class="btn btn-outline-navy btn-sm" href="<?= e(url('/senda/referrals/' . $item['id'] . '/edit')) ?>">
-                                        <?= empty($item['is_completed']) || hasPermission('senda.referrals.edit_completed') ? 'Editar' : 'Ver' ?>
-                                    </a>
+                                    <a class="btn btn-outline-navy btn-sm" href="<?= e(url('/senda/referrals/' . $item['id'] . '/edit')) ?>">Editar</a>
                                 <?php endif; ?>
                             </td>
                         </tr>

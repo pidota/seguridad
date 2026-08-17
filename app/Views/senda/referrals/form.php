@@ -33,6 +33,18 @@ if ($destinationCenterSelect === '') {
         $destinationCenterOther = $destinationCenterStored;
     }
 }
+$applicantKind = $v('applicant_kind');
+$relationshipOptions = \App\Services\Senda\AssistedReferralCatalog::applicantRelationshipsForKind($applicantKind);
+$storedRelationship = $v('applicant_relationship');
+if ($storedRelationship !== '') {
+    $knownValues = array_column($relationshipOptions, 'value');
+    if (!in_array($storedRelationship, $knownValues, true)) {
+        array_unshift($relationshipOptions, [
+            'value' => $storedRelationship,
+            'label' => \App\Services\Senda\AssistedReferralCatalog::applicantRelationshipLabel($storedRelationship),
+        ]);
+    }
+}
 $steps = [
     1 => 'Datos de solicitud',
     2 => 'Quién realiza la solicitud',
@@ -124,6 +136,8 @@ if (!$showRiskEvalStep) {
     data-applicant-referral-name="<?= e((string) ($attention['referral_person'] ?? '')) ?>"
     data-applicant-referral-phone="<?= e((string) ($attention['referral_phone'] ?? '')) ?>"
     data-applicant-referral-email="<?= e((string) ($attention['referral_email'] ?? '')) ?>"
+    data-senda-family-relationships="<?= e(json_encode($familyRelationships ?? [], JSON_UNESCAPED_UNICODE)) ?>"
+    data-senda-institutional-relationships="<?= e(json_encode($institutionalRelationships ?? [], JSON_UNESCAPED_UNICODE)) ?>"
 >
     <?= csrf_field() ?>
     <?php if ($isEdit): ?>
@@ -189,8 +203,8 @@ if (!$showRiskEvalStep) {
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label" for="requesting_device">Dispositivo o programa que solicita</label>
-                    <input class="form-control <?= $hasError('requesting_device') ? 'is-invalid' : '' ?>" id="requesting_device" name="requesting_device" value="<?= e($v('requesting_device')) ?>">
-                    <?php if ($hasError('requesting_device')): ?><div class="invalid-feedback"><?= e((string) error('requesting_device')) ?></div><?php endif; ?>
+                    <input type="hidden" name="requesting_device" value="<?= e(\App\Services\Senda\AssistedReferralCatalog::REQUESTING_DEVICE) ?>">
+                    <input class="form-control" id="requesting_device" value="<?= e(\App\Services\Senda\AssistedReferralCatalog::REQUESTING_DEVICE) ?>" readonly>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label" for="requesting_commune">Comuna de origen</label>
@@ -266,9 +280,9 @@ if (!$showRiskEvalStep) {
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label" for="applicant_relationship">Tipo de relación</label>
-                    <select class="form-select <?= $hasError('applicant_relationship') ? 'is-invalid' : '' ?>" id="applicant_relationship" name="applicant_relationship">
+                    <select class="form-select <?= $hasError('applicant_relationship') ? 'is-invalid' : '' ?>" id="applicant_relationship" name="applicant_relationship" data-senda-applicant-relationship>
                         <option value="">Seleccione</option>
-                        <?= $optionList($relationships ?? [], $v('applicant_relationship')) ?>
+                        <?= $optionList($relationshipOptions, $storedRelationship) ?>
                     </select>
                     <?php if ($hasError('applicant_relationship')): ?><div class="invalid-feedback"><?= e((string) error('applicant_relationship')) ?></div><?php endif; ?>
                 </div>

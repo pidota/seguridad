@@ -101,6 +101,27 @@ final class FollowUpRepository
     }
 
     /**
+     * @return list<array<string, mixed>>
+     */
+    public function pendingAlerts(int $limit = 8, ?string $today = null): array
+    {
+        $limit = max(1, min($limit, 20));
+        $status = FollowUpStatus::PENDING;
+        $sql = $this->selectSql() . '
+                WHERE f.deleted_at IS NULL
+                  AND ' . FollowUpStatus::matchSql($status) . '
+                ORDER BY f.next_follow_up_date ASC, f.id ASC
+                LIMIT ' . $limit;
+        $stmt = $this->db()->prepare($sql);
+        $params = FollowUpStatus::usesTodayParam($status)
+            ? ['status_today' => FollowUpStatus::today($today)]
+            : [];
+        $stmt->execute($params);
+
+        return $stmt->fetchAll() ?: [];
+    }
+
+    /**
      * @return list<array{id: int, name: string}>
      */
     public function staffOptions(): array

@@ -70,6 +70,74 @@ final class FollowUpService
         return $metrics;
     }
 
+    /**
+     * @return array{
+     *     total: int,
+     *     overdue: int,
+     *     due_today: int,
+     *     items: list<array<string, mixed>>,
+     *     list_path: string,
+     *     overdue_path: string,
+     *     due_today_path: string
+     * }
+     */
+    public function dashboardAlertPanel(int $limit = 8): array
+    {
+        $counts = $this->followUps->scheduleCounts();
+        $total = (int) ($counts[FollowUpStatus::PENDING] ?? 0);
+
+        return [
+            'total' => $total,
+            'overdue' => (int) ($counts[FollowUpStatus::OVERDUE] ?? 0),
+            'due_today' => (int) ($counts[FollowUpStatus::DUE_TODAY] ?? 0),
+            'items' => $total > 0 ? $this->pendingAlerts($limit) : [],
+            'list_path' => '/senda/follow-ups?status=' . FollowUpStatus::PENDING,
+            'overdue_path' => '/senda/follow-ups?status=' . FollowUpStatus::OVERDUE,
+            'due_today_path' => '/senda/follow-ups?status=' . FollowUpStatus::DUE_TODAY,
+        ];
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    public function pendingAlerts(int $limit = 8): array
+    {
+        $alerts = [];
+
+        foreach ($this->followUps->pendingAlerts($limit) as $row) {
+            $presented = $this->present($row);
+            $status = FollowUpStatus::OVERDUE;
+
+            if (!$presented['is_overdue']) {
+                $status = $presented['is_due_today']
+                    ? FollowUpStatus::DUE_TODAY
+                    : FollowUpStatus::PENDING;
+            }
+
+            $nextDate = trim((string) ($presented['next_follow_up_date'] ?? ''));
+
+            $alerts[] = [
+                'id' => (int) ($presented['id'] ?? 0),
+                'person_id' => (int) ($presented['senda_person_id'] ?? 0),
+                'person_full_name' => (string) ($presented['person_full_name'] ?? ''),
+                'person_rut' => (string) ($presented['person_rut'] ?? ''),
+                'attention_number' => (string) ($presented['attention_number'] ?? ''),
+                'next_follow_up_date' => $nextDate,
+                'next_follow_up_date_label' => $nextDate !== ''
+                    ? date('d/m/Y', strtotime($nextDate))
+                    : '—',
+                'status' => $status,
+                'status_label' => FollowUpStatus::label($status),
+                'tone' => FollowUpStatus::tone($status),
+                'path' => (int) ($presented['senda_person_id'] ?? 0) > 0
+                    ? '/senda/follow-ups/person/' . (int) $presented['senda_person_id']
+                    : '/senda/follow-ups/' . (int) ($presented['id'] ?? 0),
+            ];
+        }
+
+        return $alerts;
+    }
+
     public function find(int $id): array
     {
         $record = $this->followUps->findById($id);

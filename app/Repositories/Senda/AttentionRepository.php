@@ -225,6 +225,7 @@ final class AttentionRepository
         $sql = 'UPDATE senda_attentions
                 SET attention_date = :attention_date,
                     attention_time = :attention_time,
+                    entry_type = :entry_type,
                     referral_institution_type = :referral_institution_type,
                     referral_institution_name = :referral_institution_name,
                     referral_person = :referral_person,

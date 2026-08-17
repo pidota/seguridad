@@ -15,11 +15,9 @@ final class ReferralStoreValidator
         $origins = implode(',', DemandOrigin::values());
         $requestTypes = implode(',', array_column(AssistedReferralCatalog::requestTypes(), 'value'));
         $kinds = implode(',', array_column(AssistedReferralCatalog::applicantKinds(), 'value'));
-        $relationships = implode(',', array_column(AssistedReferralCatalog::applicantRelationships(), 'value'));
         $genders = implode(',', array_column(AssistedReferralCatalog::genders(), 'value'));
         $risks = implode(',', array_column(AssistedReferralCatalog::riskLevels(), 'value'));
         $frequencies = implode(',', array_column(AssistedReferralCatalog::frequencies(), 'value'));
-
         $modalities = implode(',', array_column(AssistedReferralCatalog::treatmentModalities(), 'value'));
         $stays = implode(',', array_column(AssistedReferralCatalog::treatmentStayPeriods(), 'value'));
         $destinationCenters = implode(',', array_column(AssistedReferralCatalog::destinationCenters(), 'value'));
@@ -63,8 +61,13 @@ final class ReferralStoreValidator
             'observations' => 'nullable|max:4000',
         ];
 
-        if (in_array($kind, ['familiar', 'institucional'], true)) {
+        if ($kind === 'familiar') {
             $rules['applicant_name'] = 'required|min:3|max:180';
+            $relationships = implode(',', array_column(AssistedReferralCatalog::familyApplicantRelationships(), 'value'));
+            $rules['applicant_relationship'] = 'required|in:' . $relationships;
+        } elseif ($kind === 'institucional') {
+            $rules['applicant_name'] = 'required|min:3|max:180';
+            $relationships = implode(',', array_column(AssistedReferralCatalog::institutionalApplicantRelationships(), 'value'));
             $rules['applicant_relationship'] = 'required|in:' . $relationships;
         }
 

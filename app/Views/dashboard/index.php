@@ -14,6 +14,10 @@ $greeting = $hour < 12 ? 'Buenos días' : ($hour < 20 ? 'Buenas tardes' : 'Buena
     </div>
 </section>
 
+<?php if (($followUpAlertPanel ?? null) !== null): ?>
+    <?php require dirname(__DIR__) . '/senda/dashboard/followup-alerts.php'; ?>
+<?php endif; ?>
+
 <?php if ($modules === []): ?>
     <div class="page-card">
         <h2 class="page-card__title">Sin módulos asignados</h2>

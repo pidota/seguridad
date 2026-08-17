@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Services\Senda\FollowUpService;
 use Core\Auth;
 use Core\Controller;
 use Core\Request;
@@ -31,6 +32,9 @@ final class DashboardController extends Controller
             'title' => 'Dashboard',
             'user' => Auth::user(),
             'modules' => $modules,
+            'followUpAlertPanel' => hasPermission('senda.followups.view')
+                ? (new FollowUpService())->dashboardAlertPanel()
+                : null,
         ]);
     }
 

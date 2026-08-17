@@ -8,6 +8,8 @@
 
 <?= senda_nav($sendaNav ?? []) ?>
 
+<?php require __DIR__ . '/followup-alerts.php'; ?>
+
 <?php if (($metrics ?? []) !== []): ?>
     <section class="senda-metric-grid" aria-label="Indicadores SENDA">
         <?php foreach ($metrics as $metric): ?>

@@ -28,6 +28,55 @@ function setPanelVisible(panel, show, clearValues) {
     });
 }
 
+function fillRelationshipOptions(select, options, selectedValue, clearIfMissing) {
+    if (!select) {
+        return;
+    }
+
+    const current = selectedValue ?? select.value;
+    select.innerHTML = '';
+
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = 'Seleccione';
+    select.appendChild(placeholder);
+
+    let hasSelected = false;
+
+    options.forEach((option) => {
+        const item = document.createElement('option');
+        item.value = option.value;
+        item.textContent = option.label;
+        if (current === option.value) {
+            item.selected = true;
+            hasSelected = true;
+        }
+        select.appendChild(item);
+    });
+
+    if (!hasSelected && current !== '') {
+        if (clearIfMissing) {
+            select.value = '';
+        } else {
+            const legacy = document.createElement('option');
+            legacy.value = current;
+            legacy.textContent = current;
+            legacy.selected = true;
+            select.insertBefore(legacy, select.firstChild.nextSibling);
+        }
+    }
+}
+
+function parseRelationshipOptions(form, key) {
+    try {
+        const raw = form.dataset[key] || '[]';
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+        return [];
+    }
+}
+
 function initApplicantKind(form) {
     const radios = Array.from(form.querySelectorAll('[data-senda-applicant-kind]'));
     if (radios.length === 0) {
@@ -40,12 +89,16 @@ function initApplicantKind(form) {
     const name = form.querySelector('#applicant_name');
     const phone = form.querySelector('#applicant_phone');
     const email = form.querySelector('#applicant_email');
+    const familyRelationships = parseRelationshipOptions(form, 'sendaFamilyRelationships');
+    const institutionalRelationships = parseRelationshipOptions(form, 'sendaInstitutionalRelationships');
+    let isInitialSync = true;
 
     const sync = () => {
         const selected = radios.find((radio) => radio.checked);
         const kind = selected ? selected.value : '';
         const isPerson = kind === 'persona_implicada';
         const needsExtra = kind === 'familiar' || kind === 'institucional';
+        const previousRelationship = relationship ? relationship.value : '';
 
         radios.forEach((radio) => {
             radio.closest('.senda-choice-card')?.classList.toggle('is-current', radio.checked);
@@ -57,8 +110,13 @@ function initApplicantKind(form) {
 
         setPanelVisible(extra, needsExtra, false);
 
-        if (needsExtra && relationship && ['', 'familiar', 'institucional'].includes(relationship.value)) {
-            relationship.value = kind;
+        if (relationship) {
+            const options = kind === 'familiar'
+                ? familyRelationships
+                : kind === 'institucional'
+                    ? institutionalRelationships
+                    : [];
+            fillRelationshipOptions(relationship, options, previousRelationship, !isInitialSync);
         }
 
         if (kind === 'institucional' && name && name.value.trim() === '') {
@@ -70,6 +128,8 @@ function initApplicantKind(form) {
                 email.value = form.dataset.applicantReferralEmail || '';
             }
         }
+
+        isInitialSync = false;
     };
 
     radios.forEach((radio) => {

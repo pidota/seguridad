@@ -6,13 +6,15 @@ namespace App\Controllers\Senda;
 
 use App\Services\Senda\EntryType;
 use App\Services\Senda\EntryTypeContext;
+use App\Services\Senda\FollowUpService;
 use App\Services\Senda\StatisticsService;
 use Core\Request;
 
 final class DashboardController extends SendaController
 {
     public function __construct(
-        private readonly StatisticsService $statistics = new StatisticsService()
+        private readonly StatisticsService $statistics = new StatisticsService(),
+        private readonly FollowUpService $followUps = new FollowUpService()
     ) {
     }
 
@@ -32,6 +34,9 @@ final class DashboardController extends SendaController
             'entryType' => EntryType::meta($type),
             'cards' => $this->cards(),
             'metrics' => $this->statistics->dashboardCards(),
+            'followUpAlertPanel' => hasPermission('senda.followups.view')
+                ? $this->followUps->dashboardAlertPanel()
+                : null,
         ]);
     }
 
