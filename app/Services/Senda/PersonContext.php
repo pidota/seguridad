@@ -26,6 +26,7 @@ final class PersonContext
     public static function forget(): void
     {
         Session::forget(self::SESSION_KEY);
+        EntryFlowContext::forget();
     }
 
     public static function rememberLookupRut(string $formatted): void

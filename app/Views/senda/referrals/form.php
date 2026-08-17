@@ -17,6 +17,22 @@ $assist = old('assist', $record['assist'] ?? []);
 if (!is_array($assist)) {
     $assist = \App\Services\Senda\AssistedReferralCatalog::emptyAssist();
 }
+$selectedSubstanceKeys = old('substance_keys', $record['substance_keys'] ?? []);
+if (!is_array($selectedSubstanceKeys)) {
+    $selectedSubstanceKeys = [];
+}
+$destinationCenterStored = $v('destination_center');
+$destinationCenterSelect = (string) old('destination_center_select', '');
+$destinationCenterOther = (string) old('destination_center_other', '');
+
+if ($destinationCenterSelect === '') {
+    if (\App\Services\Senda\AssistedReferralCatalog::isPresetDestinationCenter($destinationCenterStored)) {
+        $destinationCenterSelect = $destinationCenterStored;
+    } elseif ($destinationCenterStored !== '') {
+        $destinationCenterSelect = 'otros';
+        $destinationCenterOther = $destinationCenterStored;
+    }
+}
 $steps = [
     1 => 'Datos de solicitud',
     2 => 'Quién realiza la solicitud',
@@ -42,6 +58,30 @@ $optionList = static function (array $options, string $selected): string {
 };
 $screeningUsed = $v('screening_used');
 $skipAfterScreening = $screeningUsed === 'no';
+$riskEvalFields = [
+    'suicide_risk',
+    'violence_risk',
+    'overall_risk',
+    'street_situation',
+    'pregnancy',
+    'children_in_care',
+    'risk_notes',
+];
+$showRiskEvalStep = false;
+foreach ($riskEvalFields as $riskField) {
+    if ($hasError($riskField)) {
+        $showRiskEvalStep = true;
+        break;
+    }
+}
+if (!$showRiskEvalStep) {
+    foreach ($riskEvalFields as $riskField) {
+        if (trim($v($riskField)) !== '') {
+            $showRiskEvalStep = true;
+            break;
+        }
+    }
+}
 ?>
 <section class="page-toolbar">
     <div>
@@ -59,7 +99,9 @@ $skipAfterScreening = $screeningUsed === 'no';
             </p>
         <?php endif; ?>
     </div>
-    <a class="btn btn-outline-navy" href="<?= e(url('/senda/referrals')) ?>">Volver al listado</a>
+    <a class="btn btn-outline-navy" href="<?= e((string) ($cancelUrl ?? url('/senda/referrals'))) ?>">
+        <?= !empty($returnFlow) ? 'Volver' : 'Volver al listado' ?>
+    </a>
 </section>
 
 <?= senda_nav($sendaNav ?? []) ?>
@@ -75,6 +117,7 @@ $skipAfterScreening = $screeningUsed === 'no';
     class="senda-wizard"
     data-senda-referral-form
     data-skip-observations="<?= $skipAfterScreening ? '1' : '0' ?>"
+    data-show-risk-eval="<?= $showRiskEvalStep ? '1' : '0' ?>"
     data-applicant-person-name="<?= e((string) ($person['full_name'] ?? '')) ?>"
     data-applicant-person-phone="<?= e((string) ($person['phone'] ?? '')) ?>"
     data-applicant-person-email="<?= e((string) ($person['email'] ?? '')) ?>"
@@ -87,10 +130,13 @@ $skipAfterScreening = $screeningUsed === 'no';
         <?= method_field('PUT') ?>
     <?php endif; ?>
     <input type="hidden" name="senda_attention_id" value="<?= e((string) ($attention['id'] ?? $v('senda_attention_id'))) ?>">
+    <?php if (!empty($returnFlow)): ?>
+        <input type="hidden" name="return_flow" value="entry">
+    <?php endif; ?>
 
     <nav class="senda-steps" aria-label="Secciones de la ficha">
         <?php foreach ($steps as $number => $label): ?>
-            <button type="button" class="senda-steps__item<?= $number === 1 ? ' is-active' : '' ?>" data-step-goto="<?= $number ?>"<?= $number === 8 && $skipAfterScreening ? ' hidden' : '' ?>>
+            <button type="button" class="senda-steps__item<?= $number === 1 ? ' is-active' : '' ?>" data-step-goto="<?= $number ?>"<?= $number === 6 && !$showRiskEvalStep ? ' hidden' : '' ?><?= $number === 8 && $skipAfterScreening ? ' hidden' : '' ?>>
                 <span class="senda-steps__num"><?= $number ?></span>
                 <span class="senda-steps__label"><?= e($label) ?></span>
             </button>
@@ -152,9 +198,17 @@ $skipAfterScreening = $screeningUsed === 'no';
                     <?php if ($hasError('requesting_commune')): ?><div class="invalid-feedback"><?= e((string) error('requesting_commune')) ?></div><?php endif; ?>
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label class="form-label" for="destination_center">Centro o dispositivo de destino</label>
-                    <input class="form-control <?= $hasError('destination_center') ? 'is-invalid' : '' ?>" id="destination_center" name="destination_center" value="<?= e($v('destination_center')) ?>">
-                    <?php if ($hasError('destination_center')): ?><div class="invalid-feedback"><?= e((string) error('destination_center')) ?></div><?php endif; ?>
+                    <label class="form-label" for="destination_center_select">Centro o dispositivo de destino</label>
+                    <select class="form-select <?= $hasError('destination_center_select') ? 'is-invalid' : '' ?>" id="destination_center_select" name="destination_center_select" data-senda-destination-toggle>
+                        <option value="">Seleccione</option>
+                        <?= $optionList($destinationCenters ?? [], $destinationCenterSelect) ?>
+                    </select>
+                    <?php if ($hasError('destination_center_select')): ?><div class="invalid-feedback"><?= e((string) error('destination_center_select')) ?></div><?php endif; ?>
+                </div>
+                <div class="col-md-6 mb-3" data-senda-destination-other <?= $destinationCenterSelect === 'otros' ? '' : 'hidden' ?>>
+                    <label class="form-label" for="destination_center_other">Especifique otro centro o dispositivo</label>
+                    <input class="form-control <?= $hasError('destination_center_other') ? 'is-invalid' : '' ?>" id="destination_center_other" name="destination_center_other" value="<?= e($destinationCenterOther) ?>" maxlength="180">
+                    <div class="invalid-feedback" data-senda-destination-other-error><?= $hasError('destination_center_other') ? e((string) error('destination_center_other')) : 'Indique el centro o dispositivo de destino.' ?></div>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label" for="destination_commune">Comuna de destino</label>
@@ -327,28 +381,43 @@ $skipAfterScreening = $screeningUsed === 'no';
         <section class="page-card senda-step" data-step="4">
             <h3 class="page-card__title">4. Antecedentes</h3>
             <div class="mb-3">
-                <label class="form-label" for="substances">Sustancias de consumo</label>
-                <textarea class="form-control <?= $hasError('substances') ? 'is-invalid' : '' ?>" id="substances" name="substances" rows="3"><?= e($v('substances')) ?></textarea>
-                <?php if ($hasError('substances')): ?><div class="invalid-feedback"><?= e((string) error('substances')) ?></div><?php endif; ?>
+                <span class="form-label d-block">Antecedentes de consumo</span>
+                <p class="form-text mb-2">Seleccione todas las sustancias que apliquen.</p>
+                <?php if (has_error('substance_keys')): ?>
+                    <div class="text-danger small fw-semibold mb-2"><?= e((string) error('substance_keys')) ?></div>
+                <?php endif; ?>
+                <div class="senda-substance-checklist">
+                    <?php foreach ($consumptionSubstances ?? [] as $substance): ?>
+                        <?php
+                        $substanceKey = (string) ($substance['key'] ?? '');
+                        $isChecked = in_array($substanceKey, $selectedSubstanceKeys, true);
+                        ?>
+                        <label class="form-check senda-substance-checklist__item">
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                name="substance_keys[]"
+                                value="<?= e($substanceKey) ?>"
+                                <?= $isChecked ? 'checked' : '' ?>
+                            >
+                            <span class="form-check-label"><?= e((string) ($substance['label'] ?? '')) ?></span>
+                        </label>
+                    <?php endforeach; ?>
+                </div>
             </div>
             <div class="row">
-                <div class="col-md-4 mb-3">
+                <div class="col-md-6 mb-3">
                     <label class="form-label" for="age_of_onset">Edad de inicio</label>
                     <input class="form-control <?= $hasError('age_of_onset') ? 'is-invalid' : '' ?>" id="age_of_onset" name="age_of_onset" value="<?= e($v('age_of_onset')) ?>">
                     <?php if ($hasError('age_of_onset')): ?><div class="invalid-feedback"><?= e((string) error('age_of_onset')) ?></div><?php endif; ?>
                 </div>
-                <div class="col-md-4 mb-3">
+                <div class="col-md-6 mb-3">
                     <label class="form-label" for="consumption_frequency">Frecuencia de consumo</label>
                     <select class="form-select <?= $hasError('consumption_frequency') ? 'is-invalid' : '' ?>" id="consumption_frequency" name="consumption_frequency">
                         <option value="">Seleccione</option>
                         <?= $optionList($frequencies ?? [], $v('consumption_frequency')) ?>
                     </select>
                     <?php if ($hasError('consumption_frequency')): ?><div class="invalid-feedback"><?= e((string) error('consumption_frequency')) ?></div><?php endif; ?>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label class="form-label" for="consumption_route">Vía de administración</label>
-                    <input class="form-control <?= $hasError('consumption_route') ? 'is-invalid' : '' ?>" id="consumption_route" name="consumption_route" value="<?= e($v('consumption_route')) ?>">
-                    <?php if ($hasError('consumption_route')): ?><div class="invalid-feedback"><?= e((string) error('consumption_route')) ?></div><?php endif; ?>
                 </div>
             </div>
             <div class="mb-3">
@@ -438,7 +507,7 @@ $skipAfterScreening = $screeningUsed === 'no';
             </div>
         </section>
 
-        <section class="page-card senda-step" data-step="6">
+        <section class="page-card senda-step" data-step="6" data-senda-risk-eval-step<?= $showRiskEvalStep ? '' : ' hidden' ?>>
             <h3 class="page-card__title">6. Evaluación de riesgo</h3>
             <div class="row">
                 <div class="col-md-4 mb-3">

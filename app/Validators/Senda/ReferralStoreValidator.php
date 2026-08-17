@@ -22,6 +22,7 @@ final class ReferralStoreValidator
 
         $modalities = implode(',', array_column(AssistedReferralCatalog::treatmentModalities(), 'value'));
         $stays = implode(',', array_column(AssistedReferralCatalog::treatmentStayPeriods(), 'value'));
+        $destinationCenters = implode(',', array_column(AssistedReferralCatalog::destinationCenters(), 'value'));
         $kind = trim((string) ($data['applicant_kind'] ?? ''));
         $hasPreviousTreatments = trim((string) ($data['has_previous_treatments'] ?? ''));
         $rules = [
@@ -33,7 +34,8 @@ final class ReferralStoreValidator
             'request_type' => 'nullable|in:' . $requestTypes,
             'requesting_device' => 'nullable|max:180',
             'requesting_commune' => 'nullable|max:120',
-            'destination_center' => 'nullable|max:180',
+            'destination_center_select' => 'nullable|in:' . $destinationCenters,
+            'destination_center_other' => 'nullable|max:180',
             'destination_commune' => 'nullable|max:120',
             'applicant_kind' => 'required|in:' . $kinds,
             'applicant_phone' => 'nullable|max:30',
@@ -45,10 +47,8 @@ final class ReferralStoreValidator
             'enrolled_health_center' => 'required|in:si,no',
             'emergency_contact_name' => 'nullable|max:180',
             'emergency_contact_phone' => 'nullable|max:30',
-            'substances' => 'nullable|max:2000',
             'age_of_onset' => 'nullable|max:40',
             'consumption_frequency' => 'nullable|in:' . $frequencies,
-            'consumption_route' => 'nullable|max:80',
             'mental_health_history' => 'nullable|max:2000',
             'physical_health_history' => 'nullable|max:2000',
             'family_situation' => 'nullable|max:2000',
@@ -72,6 +72,10 @@ final class ReferralStoreValidator
             $rules['cesfam_name'] = 'required|min:2|max:180';
         }
 
+        if (trim((string) ($data['destination_center_select'] ?? '')) === 'otros') {
+            $rules['destination_center_other'] = 'required|min:2|max:180';
+        }
+
         if ($hasPreviousTreatments === 'si') {
             $rules['previous_treatments_count'] = 'required|integer';
             $rules['previous_treatment_modality'] = 'required|in:' . $modalities;
@@ -92,7 +96,8 @@ final class ReferralStoreValidator
             'request_type' => 'tipo de solicitud',
             'requesting_device' => 'dispositivo que solicita',
             'requesting_commune' => 'comuna de origen',
-            'destination_center' => 'centro de destino',
+            'destination_center_select' => 'centro o dispositivo de destino',
+            'destination_center_other' => 'otro centro o dispositivo de destino',
             'destination_commune' => 'comuna de destino',
             'applicant_kind' => 'quién realiza la solicitud',
             'applicant_name' => 'nombre completo',
@@ -107,10 +112,8 @@ final class ReferralStoreValidator
             'cesfam_name' => 'nombre del CESFAM',
             'emergency_contact_name' => 'contacto de emergencia',
             'emergency_contact_phone' => 'teléfono de emergencia',
-            'substances' => 'sustancias',
             'age_of_onset' => 'edad de inicio',
             'consumption_frequency' => 'frecuencia de consumo',
-            'consumption_route' => 'vía de administración',
             'mental_health_history' => 'salud mental',
             'physical_health_history' => 'salud física',
             'family_situation' => 'situación familiar',
@@ -133,6 +136,15 @@ final class ReferralStoreValidator
         ]);
 
         $errors = $validator->firstErrors();
+
+        if (isset($data['substance_keys']) && is_array($data['substance_keys'])) {
+            foreach ($data['substance_keys'] as $key) {
+                if (!AssistedReferralCatalog::isValidConsumptionSubstance(trim((string) $key))) {
+                    $errors['substance_keys'] = 'Seleccione sustancias válidas en antecedentes de consumo.';
+                    break;
+                }
+            }
+        }
 
         if ($hasPreviousTreatments === 'si' && !isset($errors['previous_treatments_count'])) {
             $count = (int) ($data['previous_treatments_count'] ?? 0);

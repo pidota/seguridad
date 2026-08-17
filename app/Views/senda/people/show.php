@@ -46,6 +46,30 @@
     </dl>
 </div>
 
+<?php if (trim((string) ($record['motivo'] ?? '')) !== '' || trim((string) ($record['orientaciones'] ?? '')) !== '' || trim((string) ($record['gestion'] ?? '')) !== ''): ?>
+    <div class="page-card mt-3">
+        <h3 class="page-card__title">Motivo, orientaciones y gestión</h3>
+        <?php if (trim((string) ($record['motivo'] ?? '')) !== ''): ?>
+            <div class="mb-3">
+                <p class="welcome-kicker mb-1">Motivo</p>
+                <p class="mb-0"><?= nl2br(e((string) $record['motivo'])) ?></p>
+            </div>
+        <?php endif; ?>
+        <?php if (trim((string) ($record['orientaciones'] ?? '')) !== ''): ?>
+            <div class="mb-3">
+                <p class="welcome-kicker mb-1">Orientaciones</p>
+                <p class="mb-0"><?= nl2br(e((string) $record['orientaciones'])) ?></p>
+            </div>
+        <?php endif; ?>
+        <?php if (trim((string) ($record['gestion'] ?? '')) !== ''): ?>
+            <div class="mb-0">
+                <p class="welcome-kicker mb-1">Gestión</p>
+                <p class="mb-0"><?= nl2br(e((string) $record['gestion'])) ?></p>
+            </div>
+        <?php endif; ?>
+    </div>
+<?php endif; ?>
+
 <?= \Core\View::make('senda/people/timeline', [
     'record' => $record,
     'history' => $history ?? [],

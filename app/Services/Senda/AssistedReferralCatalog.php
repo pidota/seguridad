@@ -92,6 +92,36 @@ final class AssistedReferralCatalog
     /**
      * @return list<array{key: string, label: string}>
      */
+    public static function consumptionSubstances(): array
+    {
+        return self::assistSubstances();
+    }
+
+    public static function isValidConsumptionSubstance(string $key): bool
+    {
+        foreach (self::consumptionSubstances() as $substance) {
+            if ($substance['key'] === $key) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static function consumptionSubstanceLabel(string $key): string
+    {
+        foreach (self::consumptionSubstances() as $substance) {
+            if ($substance['key'] === $key) {
+                return $substance['label'];
+            }
+        }
+
+        return $key;
+    }
+
+    /**
+     * @return list<array{key: string, label: string}>
+     */
     public static function assistSubstances(): array
     {
         return [
@@ -149,6 +179,40 @@ final class AssistedReferralCatalog
             ['value' => '6_12_meses', 'label' => '6 a 12 meses'],
             ['value' => 'mas_12_meses', 'label' => 'Más de 12 meses'],
         ];
+    }
+
+    /**
+     * @return list<array{value: string, label: string}>
+     */
+    public static function destinationCenters(): array
+    {
+        return [
+            ['value' => 'CTA HOSPITAL SANTA CRUZ', 'label' => 'CTA HOSPITAL SANTA CRUZ'],
+            ['value' => 'CESFAM CHEPICA', 'label' => 'CESFAM CHEPICA'],
+            ['value' => 'GEORGE WILLIAMS', 'label' => 'GEORGE WILLIAMS'],
+            ['value' => 'otros', 'label' => 'OTROS'],
+        ];
+    }
+
+    public static function isPresetDestinationCenter(string $value): bool
+    {
+        $needle = trim($value);
+
+        if ($needle === '') {
+            return false;
+        }
+
+        foreach (self::destinationCenters() as $option) {
+            if ($option['value'] === 'otros') {
+                continue;
+            }
+
+            if ($option['value'] === $needle) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

@@ -23,6 +23,9 @@ final class PersonStoreValidator
             'email' => 'nullable|email|max:150',
             'education' => 'nullable|max:150',
             'occupation' => 'nullable|max:150',
+            'motivo' => 'nullable|max:5000',
+            'orientaciones' => 'nullable|max:5000',
+            'gestion' => 'nullable|max:5000',
         ], [
             'first_names' => 'nombres',
             'paternal_surname' => 'apellido paterno',
@@ -34,6 +37,9 @@ final class PersonStoreValidator
             'email' => 'correo electrónico',
             'education' => 'escolaridad',
             'occupation' => 'ocupación',
+            'motivo' => 'motivo',
+            'orientaciones' => 'orientaciones',
+            'gestion' => 'gestión',
         ]);
 
         $errors = $validator->firstErrors();

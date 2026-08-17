@@ -203,6 +203,11 @@ final class ReferralService
             AssistedReferralCatalog::riskLevels(),
             $row['overall_risk'] ?? null
         );
+        $row['substance_keys'] = $this->decodeSubstanceKeys($row['substances'] ?? null);
+        $row['substances_display'] = $this->formatSubstancesDisplay(
+            $row['substance_keys'],
+            $row['substances'] ?? null
+        );
 
         return $row;
     }
@@ -257,7 +262,7 @@ final class ReferralService
             'request_type' => $this->nullable($data['request_type'] ?? null),
             'requesting_device' => $this->nullable($data['requesting_device'] ?? null),
             'requesting_commune' => $this->nullable($data['requesting_commune'] ?? null),
-            'destination_center' => $this->nullable($data['destination_center'] ?? null),
+            'destination_center' => $this->resolveDestinationCenter($data),
             'destination_commune' => $this->nullable($data['destination_commune'] ?? null),
             ...$this->applicantPayload($data, $attention, $personId),
             'gender' => $this->nullable($data['gender'] ?? null),
@@ -268,10 +273,10 @@ final class ReferralService
             'cesfam_name' => $cesfamName,
             'emergency_contact_name' => $this->nullable($data['emergency_contact_name'] ?? null),
             'emergency_contact_phone' => $this->nullable($data['emergency_contact_phone'] ?? null),
-            'substances' => $this->nullable($data['substances'] ?? null),
+            'substances' => $this->normalizeSubstancesStorage($data, $current),
             'age_of_onset' => $this->nullable($data['age_of_onset'] ?? null),
             'consumption_frequency' => $this->nullable($data['consumption_frequency'] ?? null),
-            'consumption_route' => $this->nullable($data['consumption_route'] ?? null),
+            'consumption_route' => null,
             'mental_health_history' => $this->nullable($data['mental_health_history'] ?? null),
             'physical_health_history' => $this->nullable($data['physical_health_history'] ?? null),
             'family_situation' => $this->nullable($data['family_situation'] ?? null),
@@ -755,6 +760,28 @@ final class ReferralService
         return $out;
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
+    private function resolveDestinationCenter(array $data): ?string
+    {
+        $select = trim((string) ($data['destination_center_select'] ?? ''));
+
+        if ($select === '') {
+            return $this->nullable($data['destination_center'] ?? null);
+        }
+
+        if ($select === 'otros') {
+            return $this->nullable($data['destination_center_other'] ?? null);
+        }
+
+        if (AssistedReferralCatalog::isPresetDestinationCenter($select)) {
+            return $select;
+        }
+
+        return null;
+    }
+
     private function boolInt(mixed $value): int
     {
         return in_array($value, [1, '1', true, 'on', 'si'], true) ? 1 : 0;
@@ -774,5 +801,80 @@ final class ReferralService
         $value = trim((string) $value);
 
         return $value === '' ? null : $value;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @param array<string, mixed>|null $current
+     */
+    private function normalizeSubstancesStorage(array $data, ?array $current = null): ?string
+    {
+        if (array_key_exists('substance_keys', $data)) {
+            $keys = is_array($data['substance_keys']) ? $data['substance_keys'] : [];
+            $valid = [];
+
+            foreach ($keys as $key) {
+                $key = trim((string) $key);
+                if (AssistedReferralCatalog::isValidConsumptionSubstance($key)) {
+                    $valid[] = $key;
+                }
+            }
+
+            $valid = array_values(array_unique($valid));
+
+            return $valid === [] ? null : json_encode($valid, JSON_UNESCAPED_UNICODE);
+        }
+
+        if ($current !== null) {
+            return $this->nullable($current['substances'] ?? null);
+        }
+
+        return $this->nullable($data['substances'] ?? null);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function decodeSubstanceKeys(mixed $stored): array
+    {
+        if ($stored === null || $stored === '') {
+            return [];
+        }
+
+        if (!is_string($stored)) {
+            return [];
+        }
+
+        $decoded = json_decode($stored, true);
+        if (!is_array($decoded)) {
+            return [];
+        }
+
+        $keys = [];
+        foreach ($decoded as $key) {
+            $key = trim((string) $key);
+            if (AssistedReferralCatalog::isValidConsumptionSubstance($key)) {
+                $keys[] = $key;
+            }
+        }
+
+        return array_values(array_unique($keys));
+    }
+
+    /**
+     * @param list<string> $keys
+     */
+    private function formatSubstancesDisplay(array $keys, mixed $raw): string
+    {
+        if ($keys !== []) {
+            return implode(', ', array_map(
+                static fn (string $key): string => AssistedReferralCatalog::consumptionSubstanceLabel($key),
+                $keys
+            ));
+        }
+
+        $text = trim((string) $raw);
+
+        return $text === '' ? '—' : $text;
     }
 }

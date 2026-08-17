@@ -138,9 +138,9 @@ final class StatisticsService
                 'rows' => $this->entryTypeRows(),
             ],
             [
-                'title' => 'Sustancias ASSIST',
-                'columns' => ['Sustancia', 'Registros con puntaje'],
-                'rows' => $this->substanceRows(),
+                'title' => 'Centro o dispositivo referido',
+                'columns' => ['Centro o dispositivo', 'Fichas'],
+                'rows' => $this->destinationCenterRows(),
             ],
             [
                 'title' => 'Clasificaciones',
@@ -204,14 +204,18 @@ final class StatisticsService
     /**
      * @return list<array{0: string, 1: int}>
      */
-    private function substanceRows(): array
+    private function destinationCenterRows(): array
     {
         $labels = [];
-        foreach (AssistedReferralCatalog::assistSubstances() as $substance) {
-            $labels[$substance['key']] = $substance['label'];
+        foreach (AssistedReferralCatalog::destinationCenters() as $option) {
+            if ($option['value'] === 'otros') {
+                continue;
+            }
+
+            $labels[$option['value']] = $option['label'];
         }
 
-        return $this->filledRows($this->stats->assistBySubstance(), 'substance', $labels);
+        return $this->filledRows($this->stats->referralsByDestinationCenter(), 'destination_center', $labels);
     }
 
     /**

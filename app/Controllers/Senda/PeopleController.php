@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers\Senda;
 
+use App\Services\Senda\EntryFlowContext;
 use App\Services\Senda\PersonContext;
 use App\Services\Senda\PersonHistoryService;
 use App\Services\Senda\PersonService;
@@ -218,8 +219,9 @@ final class PeopleController extends SendaController
     {
         if ($next === 'attention' && hasPermission('senda.attentions.create')) {
             PersonContext::remember($id);
+            EntryFlowContext::forget();
 
-            return url('/senda') . '?next=attention';
+            return EntryFlowContext::attentionTypesUrl();
         }
 
         return url('/senda/people/' . $id);

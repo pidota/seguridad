@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const wizard = initWizard(form);
         initApplicantKind(form);
         initCesfam(form);
+        initDestinationCenter(form);
         initPreviousTreatments(form);
         initFinalizeConfirm(form);
         form.sendaWizard = wizard;
@@ -93,6 +94,22 @@ function initCesfam(form) {
     sync(false);
 }
 
+function initDestinationCenter(form) {
+    const select = form.querySelector('[data-senda-destination-toggle]');
+    const panel = form.querySelector('[data-senda-destination-other]');
+
+    if (!select || !panel) {
+        return;
+    }
+
+    const sync = (clearOther) => {
+        setPanelVisible(panel, select.value === 'otros', clearOther);
+    };
+
+    select.addEventListener('change', () => sync(true));
+    sync(false);
+}
+
 function initPreviousTreatments(form) {
     const toggle = form.querySelector('[data-senda-treatments-toggle]');
     const panel = form.querySelector('[data-senda-treatments-detail]');
@@ -146,12 +163,28 @@ function initWizard(form) {
     const navItems = Array.from(form.querySelectorAll('[data-step-goto]'));
     const prev = form.querySelector('[data-step-prev]');
     const next = form.querySelector('[data-step-next]');
+    const riskEvalStep = form.querySelector('[data-senda-risk-eval-step]');
+    const riskEvalNav = navItems.find((item) => Number(item.getAttribute('data-step-goto')) === 6);
 
     if (steps.length === 0) {
         return null;
     }
 
     form.classList.add('is-ready');
+
+    const setRiskEvalVisible = (show, clearValues = false) => {
+        setPanelVisible(riskEvalStep, show, clearValues);
+        if (riskEvalNav) {
+            riskEvalNav.hidden = !show;
+        }
+        form.dataset.riskEvalDecision = show ? 'yes' : 'no';
+    };
+
+    if (form.dataset.showRiskEval === '1') {
+        setRiskEvalVisible(true, false);
+    } else {
+        setRiskEvalVisible(false, false);
+    }
 
     let current = 1;
     const invalid = form.querySelector('.is-invalid');
@@ -199,16 +232,74 @@ function initWizard(form) {
         return numbers[index + direction] ?? current;
     };
 
+    const askRiskEvalQuestion = () => {
+        if (typeof Swal === 'undefined') {
+            return Promise.resolve(window.confirm('¿Desea completar la sección de Evaluación de riesgo?') ? 'yes' : 'no');
+        }
+
+        return Swal.fire({
+            icon: 'question',
+            title: 'Evaluación de riesgo',
+            text: '¿Desea completar la sección de Evaluación de riesgo?',
+            showCancelButton: true,
+            confirmButtonColor: '#0b1f33',
+            cancelButtonColor: '#5c6774',
+            confirmButtonText: 'Sí',
+            cancelButtonText: 'No',
+            reverseButtons: true,
+        }).then((result) => {
+            if (result.isConfirmed) {
+                return 'yes';
+            }
+
+            if (result.dismiss === Swal.DismissReason.cancel) {
+                return 'no';
+            }
+
+            return null;
+        });
+    };
+
+    const advanceFromStep5 = async () => {
+        const decision = await askRiskEvalQuestion();
+        if (decision === null) {
+            return;
+        }
+
+        if (decision === 'yes') {
+            setRiskEvalVisible(true, false);
+            show(6);
+            return;
+        }
+
+        setRiskEvalVisible(false, true);
+        show(7);
+    };
+
     navItems.forEach((item) => {
-        item.addEventListener('click', () => {
+        item.addEventListener('click', async () => {
             if (item.hidden) {
                 return;
             }
-            show(Number(item.getAttribute('data-step-goto')));
+
+            const target = Number(item.getAttribute('data-step-goto'));
+            if (current === 5 && target >= 6) {
+                await advanceFromStep5();
+                return;
+            }
+
+            show(target);
         });
     });
     prev?.addEventListener('click', () => show(sibling(-1)));
-    next?.addEventListener('click', () => show(sibling(1)));
+    next?.addEventListener('click', async () => {
+        if (current === 5) {
+            await advanceFromStep5();
+            return;
+        }
+
+        show(sibling(1));
+    });
     show(current);
 
     return {

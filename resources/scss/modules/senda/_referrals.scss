@@ -66,3 +66,23 @@
     grid-template-columns: 1fr;
   }
 }
+
+.senda-substance-checklist {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid $line;
+  border-radius: 0.75rem;
+  background: rgba($navy, 0.02);
+}
+
+.senda-substance-checklist__item {
+  margin: 0;
+}
+
+@media (max-width: 575.98px) {
+  .senda-substance-checklist {
+    grid-template-columns: 1fr;
+  }
+}

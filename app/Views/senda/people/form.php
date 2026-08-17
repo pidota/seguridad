@@ -87,6 +87,42 @@
                 <?php if (has_error('occupation')): ?><div class="invalid-feedback"><?= e((string) error('occupation')) ?></div><?php endif; ?>
             </div>
         </div>
+
+        <?php if (!$isEdit): ?>
+            <div class="mb-3">
+                <label class="form-label" for="motivo">Motivo</label>
+                <textarea
+                    class="form-control <?= has_error('motivo') ? 'is-invalid' : '' ?>"
+                    id="motivo"
+                    name="motivo"
+                    rows="3"
+                    maxlength="5000"
+                ><?= e((string) old('motivo')) ?></textarea>
+                <?php if (has_error('motivo')): ?><div class="invalid-feedback"><?= e((string) error('motivo')) ?></div><?php endif; ?>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="orientaciones">Orientaciones</label>
+                <textarea
+                    class="form-control <?= has_error('orientaciones') ? 'is-invalid' : '' ?>"
+                    id="orientaciones"
+                    name="orientaciones"
+                    rows="3"
+                    maxlength="5000"
+                ><?= e((string) old('orientaciones')) ?></textarea>
+                <?php if (has_error('orientaciones')): ?><div class="invalid-feedback"><?= e((string) error('orientaciones')) ?></div><?php endif; ?>
+            </div>
+            <div class="mb-4">
+                <label class="form-label" for="gestion">Gestión</label>
+                <textarea
+                    class="form-control <?= has_error('gestion') ? 'is-invalid' : '' ?>"
+                    id="gestion"
+                    name="gestion"
+                    rows="3"
+                    maxlength="5000"
+                ><?= e((string) old('gestion')) ?></textarea>
+                <?php if (has_error('gestion')): ?><div class="invalid-feedback"><?= e((string) error('gestion')) ?></div><?php endif; ?>
+            </div>
+        <?php endif; ?>
         <button class="btn btn-navy" type="submit">Guardar</button>
         <a class="btn btn-outline-navy" href="<?= e($isEdit ? url('/senda/people/' . $record['id']) : (($next ?? '') === 'attention' ? url('/senda') : url('/senda/people/create'))) ?>">Cancelar</a>
     </form>

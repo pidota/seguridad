@@ -77,6 +77,7 @@ final class SendaFunctionalTests
             $this->testDerivacionShowsAndRequiresFields();
             $this->testDemandaEspontaneaDoesNotRequireReferral();
             $this->testCesfam();
+            $this->testDestinationCenter();
             $this->testTreatmentsIgnoredWhenNo();
             $this->testScreeningNoFinalizesWithoutAssist();
             $this->testScreeningYesShowsAssistAndPersists();
@@ -402,6 +403,55 @@ final class SendaFunctionalTests
         $this->referralIds[] = $siId;
         $siSaved = (new ReferralService())->find($siId);
         $this->assertSame('CESFAM Los Álamos', $siSaved['cesfam_name'], 'CESFAM Sí persiste el nombre');
+    }
+
+    private function testDestinationCenter(): void
+    {
+        $validator = new ReferralStoreValidator();
+        $base = $this->referralValidatorBase();
+
+        $missing = $validator->validate(array_merge($base, [
+            'destination_center_select' => 'otros',
+            'destination_center_other' => '',
+        ]));
+        $this->assertTrue(isset($missing['destination_center_other']), 'OTROS exige especificar el centro');
+
+        $ok = $validator->validate(array_merge($base, [
+            'destination_center_select' => 'CESFAM CHEPICA',
+            'destination_center_other' => '',
+        ]));
+        $this->assertFalse(isset($ok['destination_center_select']), 'Opción predefinida pasa validación');
+
+        $ignored = $validator->validate(array_merge($base, [
+            'destination_center_select' => 'GEORGE WILLIAMS',
+            'destination_center_other' => 'Este texto debe ignorarse',
+        ]));
+        $this->assertFalse(isset($ignored['destination_center_other']), 'Opción predefinida no exige texto adicional');
+
+        $attentionId = $this->createAttention(EntryType::DERIVACION);
+        $referralId = (new ReferralService())->create($this->referralStorePayload($attentionId, [
+            'destination_center_select' => 'GEORGE WILLIAMS',
+            'destination_center_other' => 'Centro ignorado',
+            'has_previous_treatments' => 'no',
+            'screening_used' => 'no',
+            'save_draft' => '1',
+        ]));
+        $this->referralIds[] = $referralId;
+
+        $saved = (new ReferralService())->find($referralId);
+        $this->assertSame('GEORGE WILLIAMS', $saved['destination_center'], 'Opción predefinida queda registrada');
+
+        $otrosAttention = $this->createAttention(EntryType::DERIVACION);
+        $otrosId = (new ReferralService())->create($this->referralStorePayload($otrosAttention, [
+            'destination_center_select' => 'otros',
+            'destination_center_other' => 'Centro Comunitario de Prueba',
+            'has_previous_treatments' => 'no',
+            'screening_used' => 'no',
+            'save_draft' => '1',
+        ]));
+        $this->referralIds[] = $otrosId;
+        $otrosSaved = (new ReferralService())->find($otrosId);
+        $this->assertSame('Centro Comunitario de Prueba', $otrosSaved['destination_center'], 'OTROS persiste el texto ingresado');
     }
 
     private function testTreatmentsIgnoredWhenNo(): void

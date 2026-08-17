@@ -144,17 +144,18 @@ final class StatsRepository
     }
 
     /**
-     * @return list<array{substance: string, total: int}>
+     * @return list<array{destination_center: string, total: int}>
      */
-    public function assistBySubstance(): array
+    public function referralsByDestinationCenter(): array
     {
         $stmt = $this->db()->query(
-            'SELECT ar.substance, COUNT(*) AS total
-             FROM senda_assist_results ar
-             INNER JOIN senda_assisted_referrals r ON r.id = ar.assisted_referral_id AND r.deleted_at IS NULL
-             WHERE ar.score IS NOT NULL
-             GROUP BY ar.substance
-             ORDER BY total DESC, ar.substance ASC'
+            'SELECT TRIM(r.destination_center) AS destination_center, COUNT(*) AS total
+             FROM senda_assisted_referrals r
+             WHERE r.deleted_at IS NULL
+               AND r.destination_center IS NOT NULL
+               AND TRIM(r.destination_center) <> \'\'
+             GROUP BY TRIM(r.destination_center)
+             ORDER BY total DESC, destination_center ASC'
         );
 
         return $stmt->fetchAll() ?: [];

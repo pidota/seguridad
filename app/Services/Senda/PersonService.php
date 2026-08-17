@@ -102,6 +102,13 @@ final class PersonService
     public function update(int $id, array $data): void
     {
         $current = $this->find($id);
+
+        foreach (['motivo', 'orientaciones', 'gestion'] as $field) {
+            if (!array_key_exists($field, $data)) {
+                $data[$field] = $current[$field] ?? null;
+            }
+        }
+
         $payload = $this->payload($data, $id);
 
         try {
@@ -188,6 +195,9 @@ final class PersonService
             'email',
             'education',
             'occupation',
+            'motivo',
+            'orientaciones',
+            'gestion',
             'deleted_at',
         ]);
     }
@@ -253,6 +263,9 @@ final class PersonService
             'email' => $this->nullable($data['email'] ?? null),
             'education' => $this->nullable($data['education'] ?? null),
             'occupation' => $this->nullable($data['occupation'] ?? null),
+            'motivo' => $this->nullable($data['motivo'] ?? null),
+            'orientaciones' => $this->nullable($data['orientaciones'] ?? null),
+            'gestion' => $this->nullable($data['gestion'] ?? null),
         ];
     }
 

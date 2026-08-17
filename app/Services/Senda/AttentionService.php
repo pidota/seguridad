@@ -96,6 +96,54 @@ final class AttentionService
         throw $last ?? new HttpException(500, 'No fue posible asignar el correlativo de atención.');
     }
 
+    public function createDraftForEntryFlow(int $personId): int
+    {
+        $entryType = EntryTypeContext::current();
+
+        if (!EntryType::isValid((string) $entryType)) {
+            $entryType = EntryType::DEMANDA_ESPONTANEA;
+        }
+
+        return $this->create([
+            'senda_person_id' => $personId,
+            'entry_type' => $entryType,
+            'attention_date' => date('Y-m-d'),
+            'attention_time' => date('H:i'),
+            'summary' => '',
+        ]);
+    }
+
+    /**
+     * Completa una atención borrador creada antes de la ficha de referencia.
+     *
+     * @param array<string, mixed> $data
+     */
+    public function completeDraft(int $id, array $data): void
+    {
+        $current = $this->find($id);
+        $entryType = EntryTypeContext::resolveForStore($data['entry_type'] ?? null);
+
+        if (!EntryType::isValid((string) $entryType)) {
+            throw new HttpException(422, 'Debe seleccionar un tipo de ingreso antes de registrar la atención.');
+        }
+
+        $data['entry_type'] = $entryType;
+        $data['senda_person_id'] = $current['senda_person_id'];
+        $payload = $this->payload($data, $id);
+
+        unset($payload['attention_number'], $payload['senda_person_id'], $payload['created_by']);
+
+        $this->attentions->update($id, $payload);
+        $updated = $this->attentions->findById($id);
+        $this->audit->updated(
+            AuditService::MODULE_SENDA,
+            AuditService::RESOURCE_ATTENTION,
+            $id,
+            $this->auditSnapshot($current),
+            $this->auditSnapshot($updated ? $this->present($updated) : $payload)
+        );
+    }
+
     public function update(int $id, array $data): void
     {
         $current = $this->find($id);

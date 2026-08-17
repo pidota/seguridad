@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controllers\Senda;
 
+use App\Services\Senda\AttentionService;
+use App\Services\Senda\EntryFlowContext;
 use App\Services\Senda\EntryType;
 use App\Services\Senda\EntryTypeContext;
 use App\Services\Senda\PersonContext;
@@ -15,7 +17,8 @@ use Core\Session;
 final class EntryTypeController extends SendaController
 {
     public function __construct(
-        private readonly PersonService $people = new PersonService()
+        private readonly PersonService $people = new PersonService(),
+        private readonly AttentionService $attentions = new AttentionService()
     ) {
     }
 
@@ -40,6 +43,33 @@ final class EntryTypeController extends SendaController
                     'Ingrese el RUT de la persona antes de continuar.'
                 );
                 $this->showRutForm($request);
+
+                return;
+            }
+
+            if ($step === 'referral') {
+                if (EntryTypeContext::current() === null) {
+                    Session::flashAlert(
+                        'info',
+                        'Tipo de atención',
+                        'Seleccione el tipo de atención antes de continuar.'
+                    );
+                    $this->redirect(EntryFlowContext::attentionTypesUrl());
+                }
+
+                if ($this->shouldCompleteReferralFirst()) {
+                    $this->redirect($this->referralCreateUrl((int) EntryFlowContext::draftAttentionId()));
+
+                    return;
+                }
+
+                $this->showReferralQuestion($person);
+
+                return;
+            }
+
+            if ($this->shouldCompleteReferralFirst()) {
+                $this->redirect($this->referralCreateUrl((int) EntryFlowContext::draftAttentionId()));
 
                 return;
             }
@@ -80,7 +110,8 @@ final class EntryTypeController extends SendaController
                 $this->failAndBack($e);
             }
 
-            $this->redirect(url('/senda') . '?next=attention');
+            EntryFlowContext::forget();
+            $this->redirect(EntryFlowContext::attentionTypesUrl());
         }
 
         if (!hasPermission('senda.people.create')) {
@@ -97,6 +128,60 @@ final class EntryTypeController extends SendaController
         $this->showRutForm($request, $result['rut'], false);
     }
 
+    public function referralDecision(Request $request): void
+    {
+        $person = $this->people->current();
+
+        if ($person === null) {
+            Session::flashAlert(
+                'info',
+                'Identificar persona',
+                'Ingrese el RUT de la persona antes de continuar.'
+            );
+            $this->redirect(url('/senda'));
+        }
+
+        $requires = trim((string) $request->input('requires_referral', ''));
+
+        if ($requires === '0') {
+            EntryFlowContext::markReferralSkipped();
+            $this->redirect(EntryFlowContext::attentionCreateUrl());
+        }
+
+        if ($requires !== '1') {
+            Session::flashAlert('error', 'Selección requerida', 'Indique si la persona requiere ficha de referencia.');
+            $this->redirect(EntryFlowContext::referralQuestionUrl());
+        }
+
+        if (!hasPermission('senda.referrals.create')) {
+            EntryFlowContext::markReferralSkipped();
+            Session::flashAlert(
+                'warning',
+                'Sin permiso para ficha',
+                'Su perfil no puede registrar fichas de referencia. Continúe con el registro de la atención.'
+            );
+            $this->redirect(EntryFlowContext::attentionCreateUrl());
+        }
+
+        if (EntryTypeContext::current() === null) {
+            Session::flashAlert(
+                'info',
+                'Tipo de atención',
+                'Seleccione el tipo de atención antes de continuar.'
+            );
+            $this->redirect(EntryFlowContext::attentionTypesUrl());
+        }
+
+        try {
+            $draftId = $this->attentions->createDraftForEntryFlow((int) $person['id']);
+        } catch (\Throwable $e) {
+            $this->failAndBack($e);
+        }
+
+        EntryFlowContext::markReferralRequired($draftId);
+        $this->redirect($this->referralCreateUrl($draftId));
+    }
+
     public function store(Request $request): void
     {
         $type = trim((string) $request->input('tipo_ingreso', ''));
@@ -110,6 +195,10 @@ final class EntryTypeController extends SendaController
                 'Ingrese el RUT de la persona antes de seleccionar el tipo de atención.'
             );
             $this->redirect(url('/senda'));
+        }
+
+        if ($next === 'attention' && $this->shouldCompleteReferralFirst()) {
+            $this->redirect($this->referralCreateUrl((int) EntryFlowContext::draftAttentionId()));
         }
 
         if (EntryType::isFollowUpMenuOption($type)) {
@@ -137,7 +226,15 @@ final class EntryTypeController extends SendaController
         EntryTypeContext::remember($type);
 
         if ($next === 'attention' && hasPermission('senda.attentions.create')) {
-            $this->redirect(url('/senda/attentions/create'));
+            if ($this->shouldCompleteReferralFirst()) {
+                $this->redirect($this->referralCreateUrl((int) EntryFlowContext::draftAttentionId()));
+            }
+
+            if (EntryFlowContext::needsReferralQuestion()) {
+                $this->redirect(EntryFlowContext::referralQuestionUrl());
+            }
+
+            $this->redirect(EntryFlowContext::attentionCreateUrl());
         }
 
         $this->redirect(url('/senda/dashboard') . '?' . http_build_query([
@@ -151,6 +248,19 @@ final class EntryTypeController extends SendaController
             'title' => 'Atención — SENDA',
             'rut' => $rut ?? (string) old('rut', PersonContext::lookupRut() ?? ''),
             'exists' => $exists,
+            'showSendaEntryBanner' => false,
+        ]);
+    }
+
+    /**
+     * @param array<string, mixed> $person
+     */
+    private function showReferralQuestion(array $person): void
+    {
+        $this->sendaView('entry/referral-question', [
+            'title' => 'Atención — SENDA',
+            'person' => $person,
+            'entryType' => EntryTypeContext::meta(),
             'showSendaEntryBanner' => false,
         ]);
     }
@@ -170,10 +280,23 @@ final class EntryTypeController extends SendaController
         ]);
     }
 
+    private function shouldCompleteReferralFirst(): bool
+    {
+        return EntryFlowContext::referralRequired() && !EntryFlowContext::referralCompleted();
+    }
+
+    private function referralCreateUrl(int $attentionId): string
+    {
+        return url('/senda/referrals/create') . '?' . http_build_query([
+            'attention' => $attentionId,
+            'flow' => 'entry',
+        ]);
+    }
+
     private function typeSelectionUrl(string $next): string
     {
         if ($next === 'attention') {
-            return url('/senda') . '?next=attention';
+            return EntryFlowContext::attentionTypesUrl();
         }
 
         return url('/senda') . '?step=tipo';

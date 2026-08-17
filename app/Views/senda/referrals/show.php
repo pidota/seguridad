@@ -67,6 +67,10 @@ foreach ($assistSubstances ?? [] as $substance) {
             <dt>Funcionario</dt>
             <dd><?= e((string) ($record['created_by_name'] ?? $record['receiving_officer'] ?? '—')) ?></dd>
         </div>
+        <div>
+            <dt>Antecedentes de consumo</dt>
+            <dd><?= e((string) ($record['substances_display'] ?? '—')) ?></dd>
+        </div>
     </dl>
 
     <?php if (($record['screening_used'] ?? '') === 'si'): ?>

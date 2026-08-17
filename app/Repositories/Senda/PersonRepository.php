@@ -98,10 +98,12 @@ final class PersonRepository
     {
         $sql = 'INSERT INTO senda_people (
                     first_names, paternal_surname, maternal_surname, rut, rut_normalized,
-                    birth_date, address, phone, email, education, occupation
+                    birth_date, address, phone, email, education, occupation,
+                    motivo, orientaciones, gestion
                 ) VALUES (
                     :first_names, :paternal_surname, :maternal_surname, :rut, :rut_normalized,
-                    :birth_date, :address, :phone, :email, :education, :occupation
+                    :birth_date, :address, :phone, :email, :education, :occupation,
+                    :motivo, :orientaciones, :gestion
                 )';
 
         $stmt = $this->db()->prepare($sql);
@@ -124,6 +126,9 @@ final class PersonRepository
                     email = :email,
                     education = :education,
                     occupation = :occupation,
+                    motivo = :motivo,
+                    orientaciones = :orientaciones,
+                    gestion = :gestion,
                     updated_at = NOW()
                 WHERE id = :id AND deleted_at IS NULL';
 

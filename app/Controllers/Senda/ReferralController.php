@@ -8,6 +8,8 @@ use App\Services\Senda\AssistClassificationService;
 use App\Services\Senda\AssistedReferralCatalog;
 use App\Services\Senda\AttentionService;
 use App\Services\Senda\DemandOrigin;
+use App\Services\Senda\EntryFlowContext;
+use App\Services\Senda\PersonContext;
 use App\Services\Senda\PersonService;
 use App\Services\Senda\ReferralService;
 use App\Services\Senda\ReferralStatus;
@@ -37,15 +39,27 @@ final class ReferralController extends SendaController
     public function create(Request $request): void
     {
         $attentionId = (int) $request->query('attention', 0);
+        $flow = trim((string) $request->query('flow', ''));
 
         if ($attentionId < 1) {
             $this->selectAttention($request);
+
             return;
         }
 
         $existing = $this->referrals->findByAttention($attentionId);
 
         if ($existing !== null) {
+            if (EntryFlowContext::isEntryFlow($flow)) {
+                EntryFlowContext::markReferralCompleted();
+                Session::flashAlert(
+                    'info',
+                    'Ficha existente',
+                    'Esta atención ya tiene una ficha de referencia registrada.'
+                );
+                $this->redirect(EntryFlowContext::attentionCreateUrl());
+            }
+
             Session::flashAlert(
                 'info',
                 'Ficha existente',
@@ -56,11 +70,16 @@ final class ReferralController extends SendaController
 
         [$attention, $person] = $this->attentionAndPerson($attentionId);
 
+        if (EntryFlowContext::isEntryFlow($flow)) {
+            $this->assertEntryFlowPerson($person);
+        }
+
         $this->sendaView('referrals/form', $this->formData(
             $this->referrals->defaults($attention, $person),
             $attention,
             $person,
-            false
+            false,
+            $flow
         ));
     }
 
@@ -84,7 +103,11 @@ final class ReferralController extends SendaController
     {
         $payload = $request->all();
         $attentionId = (int) ($payload['senda_attention_id'] ?? 0);
+        $returnFlow = trim((string) ($payload['return_flow'] ?? ''));
         $createUrl = url('/senda/referrals/create') . ($attentionId > 0 ? '?attention=' . $attentionId : '');
+        if (EntryFlowContext::isEntryFlow($returnFlow) && $attentionId > 0) {
+            $createUrl .= '&flow=entry';
+        }
 
         if ($attentionId > 0) {
             try {
@@ -107,6 +130,12 @@ final class ReferralController extends SendaController
         } catch (\Throwable $e) {
             Session::flashInput($payload);
             $this->failAndRedirect($e, $createUrl);
+        }
+
+        if (EntryFlowContext::isEntryFlow($returnFlow)) {
+            EntryFlowContext::markReferralCompleted();
+            Session::flashAlert('success', 'Ficha registrada', 'Continúe completando la atención.');
+            $this->redirect(EntryFlowContext::attentionCreateUrl());
         }
 
         if (!empty($payload['finalize_referral'])) {
@@ -223,10 +252,11 @@ final class ReferralController extends SendaController
      * @param array<string, mixed> $person
      * @return array<string, mixed>
      */
-    private function formData(array $record, array $attention, array $person, bool $isEdit): array
+    private function formData(array $record, array $attention, array $person, bool $isEdit, string $flow = ''): array
     {
         $locked = $isEdit && ReferralStatus::isCompleted($record) && !hasPermission('senda.referrals.edit_completed');
         $age = $person['age'] ?? PersonService::age($person['birth_date'] ?? null);
+        $entryFlow = EntryFlowContext::isEntryFlow($flow);
 
         return [
             'title' => $isEdit
@@ -241,6 +271,7 @@ final class ReferralController extends SendaController
             'demandOrigins' => DemandOrigin::optionsForEntryType((string) ($attention['entry_type'] ?? '')),
             'demandOriginLocked' => DemandOrigin::isLocked((string) ($attention['entry_type'] ?? '')),
             'requestTypes' => AssistedReferralCatalog::requestTypes(),
+            'destinationCenters' => AssistedReferralCatalog::destinationCenters(),
             'applicantKinds' => AssistedReferralCatalog::applicantKinds(),
             'relationships' => AssistedReferralCatalog::applicantRelationships(),
             'genders' => AssistedReferralCatalog::genders(),
@@ -253,7 +284,30 @@ final class ReferralController extends SendaController
             'treatmentStayPeriods' => AssistedReferralCatalog::treatmentStayPeriods(),
             'yesNo' => AssistedReferralCatalog::yesNo(),
             'yesNoUnknown' => AssistedReferralCatalog::yesNoUnknown(),
+            'consumptionSubstances' => AssistedReferralCatalog::consumptionSubstances(),
+            'returnFlow' => $entryFlow ? 'entry' : '',
+            'cancelUrl' => $entryFlow
+                ? EntryFlowContext::referralQuestionUrl()
+                : url('/senda/referrals'),
+            'showSendaEntryBanner' => !$entryFlow,
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $person
+     */
+    private function assertEntryFlowPerson(array $person): void
+    {
+        $currentId = PersonContext::id();
+
+        if ($currentId === null || (int) ($person['id'] ?? 0) !== $currentId) {
+            Session::flashAlert(
+                'warning',
+                'Persona no coincidente',
+                'La ficha debe completarse para la persona identificada en la atención.'
+            );
+            $this->redirect(EntryFlowContext::referralQuestionUrl());
+        }
     }
 
     /**

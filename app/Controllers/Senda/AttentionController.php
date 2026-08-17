@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers\Senda;
 
 use App\Services\Senda\AttentionService;
+use App\Services\Senda\EntryFlowContext;
 use App\Services\Senda\EntryType;
 use App\Services\Senda\EntryTypeContext;
 use App\Services\Senda\FollowUpService;
@@ -46,6 +47,33 @@ final class AttentionController extends SendaController
     {
         $type = $this->requireEntryType('attention');
         $person = $this->requirePersonForAttention();
+        $draftId = EntryFlowContext::draftAttentionId();
+
+        if ($draftId !== null) {
+            try {
+                $record = $this->attentions->find($draftId);
+                if ((int) ($record['senda_person_id'] ?? 0) === (int) ($person['id'] ?? 0)) {
+                    $this->sendaView('attentions/form', [
+                        'title' => 'Completar atención — SENDA',
+                        'record' => $record,
+                        'entryType' => EntryType::meta($type),
+                        'person' => $person,
+                        'isReferral' => $type === EntryType::DERIVACION,
+                        'institutionTypes' => ReferralInstitutionType::options(),
+                        'followups' => [],
+                        'defaults' => [
+                            'attention_date' => (string) ($record['attention_date'] ?? date('Y-m-d')),
+                            'attention_time' => (string) ($record['attention_time_short'] ?? date('H:i')),
+                        ],
+                        'completingDraft' => true,
+                    ]);
+
+                    return;
+                }
+            } catch (\Throwable) {
+                EntryFlowContext::clearDraftAttention();
+            }
+        }
 
         $this->sendaView('attentions/form', [
             'title' => 'Nueva atención — SENDA',
@@ -80,7 +108,13 @@ final class AttentionController extends SendaController
         }
 
         try {
-            $this->attentions->create($payload);
+            $draftId = EntryFlowContext::draftAttentionId();
+            if ($draftId !== null) {
+                $this->attentions->completeDraft($draftId, $payload);
+                EntryFlowContext::clearDraftAttention();
+            } else {
+                $this->attentions->create($payload);
+            }
         } catch (\Throwable $e) {
             Session::flashInput($payload);
             $this->failAndBack($e);

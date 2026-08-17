@@ -1,5 +1,7 @@
 <?php
-$isEdit = $record !== null;
+$completingDraft = !empty($completingDraft);
+$hasRecord = $record !== null;
+$isEdit = $hasRecord && !$completingDraft;
 $isReferral = !empty($isReferral);
 $defaults = $defaults ?? ['attention_date' => date('Y-m-d'), 'attention_time' => date('H:i')];
 $institutionTypes = $institutionTypes ?? [];
@@ -8,7 +10,7 @@ $institutionTypes = $institutionTypes ?? [];
     <div>
         <p class="welcome-kicker mb-1">SENDA</p>
         <h2 class="page-card__title mb-0"><?= $isEdit ? 'Editar atención' : 'Registro de Atención' ?></h2>
-        <?php if ($isEdit && !empty($record['attention_number'])): ?>
+        <?php if (($isEdit || $completingDraft) && !empty($record['attention_number'])): ?>
             <p class="mb-0"><span class="senda-badge senda-badge--referral"><?= e((string) $record['attention_number']) ?></span></p>
         <?php endif; ?>
     </div>
@@ -38,6 +40,8 @@ $institutionTypes = $institutionTypes ?? [];
             <span class="senda-badge senda-badge--<?= e($entryType['tone']) ?>"><?= e($entryType['label']) ?></span>
             <?php if ($isEdit): ?>
                 <span class="text-secondary small">Quedó registrado al crear la atención.</span>
+            <?php elseif ($completingDraft): ?>
+                <span class="text-secondary small">Complete los datos de la atención para finalizar el registro.</span>
             <?php endif; ?>
         </div>
     <?php endif; ?>
@@ -60,12 +64,12 @@ $institutionTypes = $institutionTypes ?? [];
         <div class="row">
             <div class="col-md-6 mb-3">
                 <label class="form-label" for="attention_date">Fecha de atención</label>
-                <input type="date" class="form-control <?= has_error('attention_date') ? 'is-invalid' : '' ?>" id="attention_date" name="attention_date" value="<?= e((string) old('attention_date', $isEdit ? (string) $record['attention_date'] : (string) $defaults['attention_date'])) ?>" required>
+                <input type="date" class="form-control <?= has_error('attention_date') ? 'is-invalid' : '' ?>" id="attention_date" name="attention_date" value="<?= e((string) old('attention_date', $hasRecord ? (string) $record['attention_date'] : (string) $defaults['attention_date'])) ?>" required>
                 <?php if (has_error('attention_date')): ?><div class="invalid-feedback"><?= e((string) error('attention_date')) ?></div><?php endif; ?>
             </div>
             <div class="col-md-6 mb-3">
                 <label class="form-label" for="attention_time">Hora de atención</label>
-                <input type="time" class="form-control <?= has_error('attention_time') ? 'is-invalid' : '' ?>" id="attention_time" name="attention_time" value="<?= e((string) old('attention_time', $isEdit ? (string) ($record['attention_time_short'] ?? '') : (string) $defaults['attention_time'])) ?>" required>
+                <input type="time" class="form-control <?= has_error('attention_time') ? 'is-invalid' : '' ?>" id="attention_time" name="attention_time" value="<?= e((string) old('attention_time', $hasRecord ? (string) ($record['attention_time_short'] ?? '') : (string) $defaults['attention_time'])) ?>" required>
                 <?php if (has_error('attention_time')): ?><div class="invalid-feedback"><?= e((string) error('attention_time')) ?></div><?php endif; ?>
             </div>
         </div>
@@ -77,7 +81,7 @@ $institutionTypes = $institutionTypes ?? [];
                     <select class="form-select <?= has_error('referral_institution_type') ? 'is-invalid' : '' ?>" id="referral_institution_type" name="referral_institution_type" <?= $isReferral ? '' : 'disabled' ?>>
                         <option value="">Seleccione</option>
                         <?php foreach ($institutionTypes as $option): ?>
-                            <option value="<?= e($option['value']) ?>" <?= (string) old('referral_institution_type', $isEdit ? (string) ($record['referral_institution_type'] ?? '') : '') === $option['value'] ? 'selected' : '' ?>>
+                            <option value="<?= e($option['value']) ?>" <?= (string) old('referral_institution_type', $hasRecord ? (string) ($record['referral_institution_type'] ?? '') : '') === $option['value'] ? 'selected' : '' ?>>
                                 <?= e($option['label']) ?>
                             </option>
                         <?php endforeach; ?>
@@ -86,36 +90,36 @@ $institutionTypes = $institutionTypes ?? [];
                 </div>
                 <div class="mb-3">
                     <label class="form-label" for="referral_institution_name">Nombre de institución</label>
-                    <input class="form-control <?= has_error('referral_institution_name') ? 'is-invalid' : '' ?>" id="referral_institution_name" name="referral_institution_name" value="<?= e((string) old('referral_institution_name', $isEdit ? (string) ($record['referral_institution_name'] ?? '') : '')) ?>" <?= $isReferral ? '' : 'disabled' ?>>
+                    <input class="form-control <?= has_error('referral_institution_name') ? 'is-invalid' : '' ?>" id="referral_institution_name" name="referral_institution_name" value="<?= e((string) old('referral_institution_name', $hasRecord ? (string) ($record['referral_institution_name'] ?? '') : '')) ?>" <?= $isReferral ? '' : 'disabled' ?>>
                     <?php if (has_error('referral_institution_name')): ?><div class="invalid-feedback"><?= e((string) error('referral_institution_name')) ?></div><?php endif; ?>
                 </div>
                 <div class="mb-3">
                     <label class="form-label" for="referral_person">Persona/profesional que deriva</label>
-                    <input class="form-control <?= has_error('referral_person') ? 'is-invalid' : '' ?>" id="referral_person" name="referral_person" value="<?= e((string) old('referral_person', $isEdit ? (string) ($record['referral_person'] ?? '') : '')) ?>" <?= $isReferral ? '' : 'disabled' ?>>
+                    <input class="form-control <?= has_error('referral_person') ? 'is-invalid' : '' ?>" id="referral_person" name="referral_person" value="<?= e((string) old('referral_person', $hasRecord ? (string) ($record['referral_person'] ?? '') : '')) ?>" <?= $isReferral ? '' : 'disabled' ?>>
                     <?php if (has_error('referral_person')): ?><div class="invalid-feedback"><?= e((string) error('referral_person')) ?></div><?php endif; ?>
                 </div>
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label" for="referral_phone">Teléfono</label>
-                        <input class="form-control <?= has_error('referral_phone') ? 'is-invalid' : '' ?>" id="referral_phone" name="referral_phone" value="<?= e((string) old('referral_phone', $isEdit ? (string) ($record['referral_phone'] ?? '') : '')) ?>" <?= $isReferral ? '' : 'disabled' ?>>
+                        <input class="form-control <?= has_error('referral_phone') ? 'is-invalid' : '' ?>" id="referral_phone" name="referral_phone" value="<?= e((string) old('referral_phone', $hasRecord ? (string) ($record['referral_phone'] ?? '') : '')) ?>" <?= $isReferral ? '' : 'disabled' ?>>
                         <?php if (has_error('referral_phone')): ?><div class="invalid-feedback"><?= e((string) error('referral_phone')) ?></div><?php endif; ?>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label" for="referral_email">Correo</label>
-                        <input type="email" class="form-control <?= has_error('referral_email') ? 'is-invalid' : '' ?>" id="referral_email" name="referral_email" value="<?= e((string) old('referral_email', $isEdit ? (string) ($record['referral_email'] ?? '') : '')) ?>" <?= $isReferral ? '' : 'disabled' ?>>
+                        <input type="email" class="form-control <?= has_error('referral_email') ? 'is-invalid' : '' ?>" id="referral_email" name="referral_email" value="<?= e((string) old('referral_email', $hasRecord ? (string) ($record['referral_email'] ?? '') : '')) ?>" <?= $isReferral ? '' : 'disabled' ?>>
                         <?php if (has_error('referral_email')): ?><div class="invalid-feedback"><?= e((string) error('referral_email')) ?></div><?php endif; ?>
                     </div>
                 </div>
                 <div class="mb-0">
                     <label class="form-label" for="referral_notes">Observaciones</label>
-                    <textarea class="form-control <?= has_error('referral_notes') ? 'is-invalid' : '' ?>" id="referral_notes" name="referral_notes" rows="3" <?= $isReferral ? '' : 'disabled' ?>><?= e((string) old('referral_notes', $isEdit ? (string) ($record['referral_notes'] ?? '') : '')) ?></textarea>
+                    <textarea class="form-control <?= has_error('referral_notes') ? 'is-invalid' : '' ?>" id="referral_notes" name="referral_notes" rows="3" <?= $isReferral ? '' : 'disabled' ?>><?= e((string) old('referral_notes', $hasRecord ? (string) ($record['referral_notes'] ?? '') : '')) ?></textarea>
                     <?php if (has_error('referral_notes')): ?><div class="invalid-feedback"><?= e((string) error('referral_notes')) ?></div><?php endif; ?>
                 </div>
             </fieldset>
 
         <div class="mb-4">
             <label class="form-label" for="summary">Observaciones de la atención</label>
-            <textarea class="form-control <?= has_error('summary') ? 'is-invalid' : '' ?>" id="summary" name="summary" rows="3"><?= e((string) old('summary', $isEdit ? (string) ($record['summary'] ?? '') : '')) ?></textarea>
+            <textarea class="form-control <?= has_error('summary') ? 'is-invalid' : '' ?>" id="summary" name="summary" rows="3"><?= e((string) old('summary', $hasRecord ? (string) ($record['summary'] ?? '') : '')) ?></textarea>
             <?php if (has_error('summary')): ?><div class="invalid-feedback"><?= e((string) error('summary')) ?></div><?php endif; ?>
         </div>
         <button class="btn btn-navy" type="submit">Guardar</button>
