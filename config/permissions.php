@@ -119,6 +119,20 @@ return [
 
     ['slug' => 'women.audit.view', 'name' => 'Ver auditoría del módulo', 'module' => 'women', 'description' => 'Consultar acciones auditadas del módulo'],
 
+    ['slug' => 'meetings.access', 'name' => 'Acceder a reuniones', 'module' => 'meetings', 'description' => 'Ingreso al módulo transversal de reuniones'],
+    ['slug' => 'meetings.view', 'name' => 'Ver reuniones', 'module' => 'meetings', 'description' => 'Consultar reuniones en las que participa o creó'],
+    ['slug' => 'meetings.create', 'name' => 'Crear reuniones', 'module' => 'meetings', 'description' => 'Registrar actas de reunión'],
+    ['slug' => 'meetings.edit', 'name' => 'Editar reuniones', 'module' => 'meetings', 'description' => 'Modificar reuniones en borrador'],
+    ['slug' => 'meetings.sign', 'name' => 'Firmar reuniones', 'module' => 'meetings', 'description' => 'Aplicar firma simple a reuniones pendientes'],
+    ['slug' => 'meetings.view_pending_signatures', 'name' => 'Ver firmas pendientes', 'module' => 'meetings', 'description' => 'Consultar solicitudes de firma propias'],
+    ['slug' => 'meetings.cancel', 'name' => 'Anular reuniones', 'module' => 'meetings', 'description' => 'Anular registros de reunión'],
+    ['slug' => 'meetings.view_all', 'name' => 'Ver todas las reuniones', 'module' => 'meetings', 'description' => 'Consultar reuniones de cualquier módulo'],
+    ['slug' => 'meetings.reopen', 'name' => 'Reabrir reuniones', 'module' => 'meetings', 'description' => 'Reabrir reuniones para corrección e invalidar firmas previas'],
+    ['slug' => 'meetings.signature.manage', 'name' => 'Gestionar firma personal', 'module' => 'meetings', 'description' => 'Cargar y actualizar firma simple PNG en el perfil'],
+
+    ['slug' => 'senda.meetings.view', 'name' => 'Ver reuniones SENDA', 'module' => 'senda', 'description' => 'Consultar reuniones originadas en SENDA'],
+    ['slug' => 'senda.meetings.create', 'name' => 'Crear reuniones SENDA', 'module' => 'senda', 'description' => 'Registrar reuniones con jefatura desde SENDA'],
+
     ['slug' => 'guards.access', 'name' => 'Acceder a Guardias Municipales', 'module' => 'guards', 'description' => 'Ingreso al módulo'],
     ['slug' => 'guards.shifts.view', 'name' => 'Ver turnos de guardias', 'module' => 'guards', 'description' => 'Consultar turnos y novedades'],
     ['slug' => 'guards.shifts.create', 'name' => 'Crear turnos de guardias', 'module' => 'guards', 'description' => 'Registrar turnos'],

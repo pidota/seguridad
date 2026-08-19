@@ -13,6 +13,7 @@ final class AuditService
     public const MODULE_SENDA = 'senda';
     public const MODULE_CCTV = 'cctv';
     public const MODULE_WOMEN = 'women';
+    public const MODULE_MEETINGS = 'meetings';
 
     public const ACTION_CREATED = 'created';
     public const ACTION_UPDATED = 'updated';
@@ -31,6 +32,10 @@ final class AuditService
     public const ACTION_PASSWORD_CHANGED = 'password_changed';
     public const ACTION_VIEW_PERSON_HISTORY = 'view_person_history';
     public const ACTION_VIEW_CASE = 'view_case';
+    public const ACTION_VIEW_MEETING = 'view_meeting';
+    public const ACTION_SIGNED = 'signed';
+    public const ACTION_CORRECTION_REQUESTED = 'correction_requested';
+    public const ACTION_REOPENED = 'reopened';
 
     public const RESOURCE_PERSON = 'senda_people';
     public const RESOURCE_ATTENTION = 'senda_attentions';
@@ -44,6 +49,7 @@ final class AuditService
     public const RESOURCE_CCTV_RECORDING_REQUEST = 'cctv_recording_requests';
     public const RESOURCE_WOMEN_CASE = 'women_cases';
     public const RESOURCE_WOMEN_PERSON = 'women_people';
+    public const RESOURCE_MEETING = 'meetings';
 
     /** @var list<string> */
     private const SENSITIVE = [
@@ -142,6 +148,10 @@ final class AuditService
             self::ACTION_PASSWORD_CHANGED => 'Cambio de contraseña',
             self::ACTION_VIEW_PERSON_HISTORY => 'Consulta de historial SENDA',
             self::ACTION_VIEW_CASE => 'Consulta de caso',
+            self::ACTION_VIEW_MEETING => 'Consulta de reunión',
+            self::ACTION_SIGNED => 'Firma simple',
+            self::ACTION_CORRECTION_REQUESTED => 'Solicitud de corrección',
+            self::ACTION_REOPENED => 'Reapertura',
         ];
     }
 
@@ -169,6 +179,7 @@ final class AuditService
             self::RESOURCE_CCTV_RECORDING_REQUEST => 'Solicitud grabación CCTV',
             self::RESOURCE_WOMEN_CASE => 'Caso Oficina de la Mujer',
             self::RESOURCE_WOMEN_PERSON => 'Persona afectada',
+            self::RESOURCE_MEETING => 'Reunión',
             'users' => 'Usuario',
             'roles' => 'Rol',
             'sectors' => 'Sector',

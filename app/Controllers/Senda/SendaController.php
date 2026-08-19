@@ -74,6 +74,7 @@ abstract class SendaController extends Controller
             ['label' => 'Registro de Atención', 'path' => '/senda/attentions', 'permission' => 'senda.attentions.view', 'icon' => 'bi-clipboard2-pulse', 'exact' => false],
             ['label' => 'Ficha de Referencia', 'path' => '/senda/referrals', 'permission' => 'senda.referrals.view', 'icon' => 'bi-file-earmark-medical', 'exact' => false],
             ['label' => 'Personas', 'path' => '/senda/people', 'permission' => 'senda.people.view', 'icon' => 'bi-people', 'exact' => false],
+            ['label' => 'Reuniones', 'path' => '/senda/meetings', 'permission' => 'senda.meetings.view', 'icon' => 'bi-journal-text', 'exact' => false],
             ['label' => 'Estadísticas', 'path' => '/senda/statistics', 'permission' => 'senda.statistics.view', 'icon' => 'bi-graph-up', 'exact' => false],
         ];
 

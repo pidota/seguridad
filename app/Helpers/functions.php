@@ -306,6 +306,7 @@ function permission_module_label(string $module): string
         'senda' => 'SENDA',
         'cameras' => 'Central de Cámaras',
         'women' => 'Oficina de la Mujer',
+        'meetings' => 'Reuniones',
         'guards' => 'Guardias Municipales',
         'auth' => 'Autenticación',
         default => ucfirst($module),
@@ -320,4 +321,13 @@ function audit_action_label(string $action): string
 function audit_resource_label(?string $resource): string
 {
     return \App\Services\AuditService::resourceLabel($resource);
+}
+
+function meetings_pending_signature_count(): int
+{
+    if (!hasPermission('meetings.view_pending_signatures')) {
+        return 0;
+    }
+
+    return (new \App\Services\Meetings\MeetingSignatureService())->getPendingCountForUser();
 }

@@ -70,6 +70,15 @@ final class DashboardController extends SendaController
                 'permission' => 'senda.followups.view',
                 'icon' => 'bi-arrow-repeat',
             ],
+            [
+                'label' => 'Reuniones con Jefatura',
+                'description' => 'Registrar reuniones, acuerdos y compromisos, y solicitar firma a los participantes.',
+                'path' => hasPermission('senda.meetings.create')
+                    ? '/senda/meetings/create'
+                    : '/senda/meetings',
+                'permission' => 'senda.meetings.view',
+                'icon' => 'bi-journal-text',
+            ],
         ];
 
         return array_values(array_filter(

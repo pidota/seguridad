@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Services\Meetings\MeetingSignatureService;
 use App\Services\Senda\FollowUpService;
 use Core\Auth;
 use Core\Controller;
@@ -35,7 +36,26 @@ final class DashboardController extends Controller
             'followUpAlertPanel' => hasPermission('senda.followups.view')
                 ? (new FollowUpService())->dashboardAlertPanel()
                 : null,
+            'meetingSignaturePanel' => hasPermission('meetings.view_pending_signatures')
+                ? $this->meetingSignaturePanel()
+                : null,
         ]);
+    }
+
+    /**
+     * @return array{count: int, url: string}|null
+     */
+    private function meetingSignaturePanel(): ?array
+    {
+        $count = (new MeetingSignatureService())->getPendingCountForUser();
+        if ($count < 1) {
+            return null;
+        }
+
+        return [
+            'count' => $count,
+            'url' => url('/meetings/pending-signatures'),
+        ];
     }
 
     private function modules(): array
@@ -58,6 +78,14 @@ final class DashboardController extends Controller
                 'tone' => 'teal',
             ],
             [
+                'name' => 'Reuniones',
+                'description' => 'Actas de reunión, acuerdos, compromisos y firma simple interna.',
+                'icon' => 'bi-journal-text',
+                'route' => $this->meetingsEntryRoute(),
+                'permission' => 'meetings.access',
+                'tone' => 'navy',
+            ],
+            [
                 'name' => 'Oficina de la Mujer',
                 'description' => 'Orientación, registro y seguimiento de atenciones.',
                 'icon' => 'bi-person-hearts',
@@ -74,5 +102,22 @@ final class DashboardController extends Controller
                 'tone' => 'gold',
             ],
         ];
+    }
+
+    private function meetingsEntryRoute(): string
+    {
+        if (hasPermission('senda.meetings.create')) {
+            return '/senda/meetings/create';
+        }
+
+        if (hasPermission('meetings.create')) {
+            return '/meetings/create';
+        }
+
+        if (hasPermission('senda.meetings.view')) {
+            return '/senda/meetings';
+        }
+
+        return '/meetings';
     }
 }

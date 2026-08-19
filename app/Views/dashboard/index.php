@@ -18,6 +18,18 @@ $greeting = $hour < 12 ? 'Buenos días' : ($hour < 20 ? 'Buenas tardes' : 'Buena
     <?php require dirname(__DIR__) . '/senda/dashboard/followup-alerts.php'; ?>
 <?php endif; ?>
 
+<?php if (($meetingSignaturePanel ?? null) !== null): ?>
+    <div class="page-card mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div>
+                <h2 class="page-card__title mb-1">Reuniones pendientes de firma</h2>
+                <p class="text-secondary mb-0">Tiene <?= (int) ($meetingSignaturePanel['count'] ?? 0) ?> solicitud(es) de firma simple por revisar.</p>
+            </div>
+            <a class="btn btn-navy" href="<?= e((string) ($meetingSignaturePanel['url'] ?? url('/meetings/pending-signatures'))) ?>">Ir a firmas pendientes</a>
+        </div>
+    </div>
+<?php endif; ?>
+
 <?php if ($modules === []): ?>
     <div class="page-card">
         <h2 class="page-card__title">Sin módulos asignados</h2>

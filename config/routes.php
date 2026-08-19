@@ -72,4 +72,8 @@ $router->group('/women', ['auth', 'can:women.access'], static function (Router $
     require BASE_PATH . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'routes' . DIRECTORY_SEPARATOR . 'women.php';
 });
 
+$router->group('/meetings', ['auth', 'can:meetings.access'], static function (Router $router): void {
+    require BASE_PATH . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'routes' . DIRECTORY_SEPARATOR . 'meetings.php';
+});
+
 $router->get('/guards', [ModulePlaceholderController::class, 'guards'], ['auth', 'can:guards.access'], 'guards.index');

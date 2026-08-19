@@ -6,6 +6,7 @@ use App\Controllers\Senda\AttentionController;
 use App\Controllers\Senda\DashboardController;
 use App\Controllers\Senda\EntryTypeController;
 use App\Controllers\Senda\FollowUpController;
+use App\Controllers\Senda\MeetingController;
 use App\Controllers\Senda\PeopleController;
 use App\Controllers\Senda\ReferralController;
 use App\Controllers\Senda\StatisticsController;
@@ -66,3 +67,16 @@ $router->put('/followups/{id}', [FollowUpController::class, 'update'], 'can:send
 $router->delete('/followups/{id}', [FollowUpController::class, 'destroy'], 'can:senda.followups.delete');
 
 $router->get('/statistics', [StatisticsController::class, 'index'], 'can:senda.statistics.view', 'senda.statistics');
+
+$router->get('/meetings', [MeetingController::class, 'index'], 'can:senda.meetings.view', 'senda.meetings.index');
+$router->get('/meetings/create', [MeetingController::class, 'create'], 'can:senda.meetings.create', 'senda.meetings.create');
+$router->post('/meetings', [MeetingController::class, 'store'], 'can:senda.meetings.create', 'senda.meetings.store');
+$router->get('/meetings/{id}', [MeetingController::class, 'show'], 'can:senda.meetings.view', 'senda.meetings.show');
+$router->get('/meetings/{id}/edit', [MeetingController::class, 'edit'], 'can:meetings.edit', 'senda.meetings.edit');
+$router->post('/meetings/{id}', [MeetingController::class, 'update'], 'can:meetings.edit', 'senda.meetings.update');
+$router->post('/meetings/{id}/finalize', [MeetingController::class, 'finalize'], 'can:meetings.edit', 'senda.meetings.finalize');
+$router->get('/meetings/{id}/sign', [MeetingController::class, 'signReview'], 'can:meetings.sign', 'senda.meetings.sign.review');
+$router->post('/meetings/{id}/sign', [MeetingController::class, 'sign'], 'can:meetings.sign', 'senda.meetings.sign');
+$router->post('/meetings/{id}/request-correction', [MeetingController::class, 'requestCorrection'], 'can:meetings.sign', 'senda.meetings.request_correction');
+$router->post('/meetings/{id}/cancel', [MeetingController::class, 'cancel'], 'can:meetings.cancel', 'senda.meetings.cancel');
+$router->post('/meetings/{id}/reopen', [MeetingController::class, 'reopen'], 'can:meetings.reopen', 'senda.meetings.reopen');

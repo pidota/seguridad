@@ -38,6 +38,7 @@ return [
         'cctv.recordings.cancel',
         'cctv.reports.view', 'cctv.reports.export',
         'women.access', 'women.dashboard.view', 'women.cases.view', 'women.cases.view_all', 'women.audit.view',
+        'meetings.access', 'meetings.view', 'meetings.view_all', 'meetings.sign', 'meetings.view_pending_signatures', 'meetings.reopen', 'meetings.cancel',
         'guards.access', 'guards.shifts.view', 'guards.shifts.create', 'guards.shifts.update',
     ],
 
@@ -67,6 +68,8 @@ return [
         'senda.referrals.view', 'senda.referrals.create', 'senda.referrals.edit',
         'senda.followups.view', 'senda.followups.create', 'senda.followups.edit', 'senda.followups.delete',
         'senda.statistics.view',
+        'senda.meetings.view', 'senda.meetings.create',
+        'meetings.access', 'meetings.view', 'meetings.create', 'meetings.edit', 'meetings.sign', 'meetings.view_pending_signatures', 'meetings.signature.manage', 'meetings.reopen',
     ],
 
     'oficina_mujer' => [
