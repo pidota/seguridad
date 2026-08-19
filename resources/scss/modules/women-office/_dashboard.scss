@@ -1,0 +1,128 @@
+.women-hero {
+  background: linear-gradient(135deg, rgba($navy, 0.96), rgba($navy-soft, 0.92));
+  color: $white;
+  border-radius: 1rem;
+  padding: 1.5rem 1.75rem;
+  margin-bottom: 1.25rem;
+
+  h2 {
+    font-family: $serif;
+    margin-bottom: 0.35rem;
+  }
+
+  .welcome-kicker {
+    color: rgba($white, 0.72);
+  }
+}
+
+.women-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+
+  &__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.55rem 0.9rem;
+    border-radius: 999px;
+    border: 1px solid $line;
+    background: $white;
+    color: $ink;
+    text-decoration: none;
+    font-size: 0.92rem;
+
+    &.is-active,
+    &:hover {
+      border-color: $navy;
+      color: $navy;
+    }
+  }
+}
+
+.women-metric-grid,
+.women-alert-grid {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.women-metric-grid {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.women-alert-grid {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.women-metric,
+.women-alert {
+  background: $white;
+  border: 1px solid $line;
+  border-radius: 0.9rem;
+  padding: 1rem 1.1rem;
+  color: inherit;
+  text-decoration: none;
+  display: block;
+
+  &:hover {
+    border-color: $navy;
+    text-decoration: none;
+  }
+
+  &__label {
+    margin: 0 0 0.35rem;
+    color: $muted;
+    font-size: 0.88rem;
+  }
+
+  &__value {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: $navy;
+  }
+}
+
+.women-alert--overdue .women-alert__value { color: $danger; }
+.women-alert--urgent .women-alert__value { color: #8a4b08; }
+
+.women-card-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.women-mini-card {
+  display: block;
+  background: $white;
+  border: 1px solid $line;
+  border-radius: 1rem;
+  padding: 1.2rem;
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+
+  i {
+    font-size: 1.4rem;
+    color: $navy;
+    margin-bottom: 0.75rem;
+  }
+
+  h3 {
+    font-size: 1.05rem;
+    margin-bottom: 0.35rem;
+  }
+
+  p {
+    margin: 0;
+    color: $muted;
+    font-size: 0.92rem;
+  }
+
+  &:hover {
+    border-color: $navy;
+    transform: translateY(-1px);
+  }
+}

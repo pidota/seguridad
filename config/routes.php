@@ -68,5 +68,8 @@ $router->group('/cctv', ['auth', 'can:cctv.access'], static function (Router $ro
     require BASE_PATH . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'routes' . DIRECTORY_SEPARATOR . 'cctv.php';
 });
 
-$router->get('/women', [ModulePlaceholderController::class, 'women'], ['auth', 'can:women.access'], 'women.index');
+$router->group('/women', ['auth', 'can:women.access'], static function (Router $router): void {
+    require BASE_PATH . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'routes' . DIRECTORY_SEPARATOR . 'women.php';
+});
+
 $router->get('/guards', [ModulePlaceholderController::class, 'guards'], ['auth', 'can:guards.access'], 'guards.index');

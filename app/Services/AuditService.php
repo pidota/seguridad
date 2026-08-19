@@ -12,6 +12,7 @@ final class AuditService
 {
     public const MODULE_SENDA = 'senda';
     public const MODULE_CCTV = 'cctv';
+    public const MODULE_WOMEN = 'women';
 
     public const ACTION_CREATED = 'created';
     public const ACTION_UPDATED = 'updated';
@@ -29,6 +30,7 @@ final class AuditService
     public const ACTION_DEACTIVATED = 'deactivated';
     public const ACTION_PASSWORD_CHANGED = 'password_changed';
     public const ACTION_VIEW_PERSON_HISTORY = 'view_person_history';
+    public const ACTION_VIEW_CASE = 'view_case';
 
     public const RESOURCE_PERSON = 'senda_people';
     public const RESOURCE_ATTENTION = 'senda_attentions';
@@ -40,6 +42,8 @@ final class AuditService
     public const RESOURCE_CCTV_LOG_ENTRY = 'cctv_log_entries';
     public const RESOURCE_CCTV_OFFICE_VISIT = 'cctv_office_visits';
     public const RESOURCE_CCTV_RECORDING_REQUEST = 'cctv_recording_requests';
+    public const RESOURCE_WOMEN_CASE = 'women_cases';
+    public const RESOURCE_WOMEN_PERSON = 'women_people';
 
     /** @var list<string> */
     private const SENSITIVE = [
@@ -103,6 +107,18 @@ final class AuditService
         $this->log(self::ACTION_RESTORED, $module, $resource, $id, $oldValues, $newValues);
     }
 
+    public function viewedCase(int|string $caseId): void
+    {
+        $this->log(
+            self::ACTION_VIEW_CASE,
+            self::MODULE_WOMEN,
+            self::RESOURCE_WOMEN_CASE,
+            $caseId,
+            null,
+            ['case_id' => $caseId]
+        );
+    }
+
     /**
      * @return array<string, string>
      */
@@ -125,6 +141,7 @@ final class AuditService
             self::ACTION_DEACTIVATED => 'Desactivación',
             self::ACTION_PASSWORD_CHANGED => 'Cambio de contraseña',
             self::ACTION_VIEW_PERSON_HISTORY => 'Consulta de historial SENDA',
+            self::ACTION_VIEW_CASE => 'Consulta de caso',
         ];
     }
 
@@ -150,6 +167,8 @@ final class AuditService
             self::RESOURCE_CCTV_LOG_ENTRY => 'Entrada bitácora CCTV',
             self::RESOURCE_CCTV_OFFICE_VISIT => 'Visita oficina CCTV',
             self::RESOURCE_CCTV_RECORDING_REQUEST => 'Solicitud grabación CCTV',
+            self::RESOURCE_WOMEN_CASE => 'Caso Oficina de la Mujer',
+            self::RESOURCE_WOMEN_PERSON => 'Persona afectada',
             'users' => 'Usuario',
             'roles' => 'Rol',
             'sectors' => 'Sector',

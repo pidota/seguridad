@@ -214,6 +214,13 @@ function cctv_nav(array $nav): string
     ], null);
 }
 
+function women_nav(array $nav): string
+{
+    return View::make('women-office/components/nav', [
+        'womenNav' => $nav,
+    ], null);
+}
+
 /**
  * @return list<array{label: string, path: string, variant: string}>
  */

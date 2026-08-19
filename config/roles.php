@@ -37,7 +37,7 @@ return [
         'cctv.recordings.assign', 'cctv.recordings.export', 'cctv.recordings.edit_delivered',
         'cctv.recordings.cancel',
         'cctv.reports.view', 'cctv.reports.export',
-        'women.access', 'women.cases.view',
+        'women.access', 'women.dashboard.view', 'women.cases.view', 'women.cases.view_all', 'women.audit.view',
         'guards.access', 'guards.shifts.view', 'guards.shifts.create', 'guards.shifts.update',
     ],
 
@@ -72,9 +72,23 @@ return [
     'oficina_mujer' => [
         'dashboard.access',
         'women.access',
+        'women.dashboard.view',
         'women.cases.view',
+        'women.cases.view_all',
         'women.cases.create',
-        'women.cases.update',
+        'women.cases.edit',
+        'women.cases.edit_closed',
+        'women.cases.close',
+        'women.people.view',
+        'women.people.create',
+        'women.people.edit',
+        'women.followups.view',
+        'women.followups.create',
+        'women.followups.edit',
+        'women.statistics.view',
+        'women.audit.view',
+        'women.documents.view',
+        'women.documents.upload',
     ],
 
     'guardias' => [
@@ -105,7 +119,7 @@ return [
         'cctv.visits.view',
         'cctv.recordings.view',
         'cctv.reports.view',
-        'women.access', 'women.cases.view',
+        'women.access', 'women.dashboard.view', 'women.cases.view',
         'guards.access', 'guards.shifts.view',
     ],
 ];

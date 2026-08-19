@@ -1,0 +1,26 @@
+.page-toolbar + .women-nav {
+  margin-top: -0.25rem;
+}
+
+.women-filters__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.women-filters__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.women-followup-date--overdue {
+  color: #842029;
+  font-weight: 600;
+}
+
+.women-followup-date--due {
+  color: #664d03;
+  font-weight: 600;
+}

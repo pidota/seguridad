@@ -1,0 +1,27 @@
+.women-stats-filter {
+  margin-bottom: 1rem;
+}
+
+.women-stats-summary {
+  margin-bottom: 1rem;
+}
+
+.women-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.women-stats-card {
+  margin: 0;
+}
+
+.women-stats-card .page-card__title {
+  margin-bottom: 0.85rem;
+}
+
+@media (max-width: 991.98px) {
+  .women-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,80 @@
+CREATE TABLE IF NOT EXISTS women_case_actions (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    case_id INT UNSIGNED NOT NULL,
+    action_date DATE NOT NULL,
+    action_time TIME NULL,
+    action_type_id INT UNSIGNED NOT NULL,
+    description TEXT NULL,
+    institution VARCHAR(180) NULL,
+    created_by INT UNSIGNED NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    INDEX idx_women_case_actions_case (case_id),
+    INDEX idx_women_case_actions_date (action_date),
+    CONSTRAINT fk_women_case_actions_case FOREIGN KEY (case_id) REFERENCES women_cases(id),
+    CONSTRAINT fk_women_case_actions_type FOREIGN KEY (action_type_id) REFERENCES women_action_types(id),
+    CONSTRAINT fk_women_case_actions_created_by FOREIGN KEY (created_by) REFERENCES users(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS women_case_referrals (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    case_id INT UNSIGNED NOT NULL,
+    referral_date DATE NOT NULL,
+    institution_id INT UNSIGNED NULL,
+    program_area VARCHAR(180) NULL,
+    reason TEXT NULL,
+    contact_person VARCHAR(180) NULL,
+    referral_status_id INT UNSIGNED NOT NULL,
+    notes TEXT NULL,
+    created_by INT UNSIGNED NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    INDEX idx_women_case_referrals_case (case_id),
+    INDEX idx_women_case_referrals_status (referral_status_id),
+    CONSTRAINT fk_women_case_referrals_case FOREIGN KEY (case_id) REFERENCES women_cases(id),
+    CONSTRAINT fk_women_case_referrals_institution FOREIGN KEY (institution_id) REFERENCES women_referral_institutions(id),
+    CONSTRAINT fk_women_case_referrals_status FOREIGN KEY (referral_status_id) REFERENCES women_referral_statuses(id),
+    CONSTRAINT fk_women_case_referrals_created_by FOREIGN KEY (created_by) REFERENCES users(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS women_case_followups (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    case_id INT UNSIGNED NOT NULL,
+    follow_up_date DATE NOT NULL,
+    follow_up_time TIME NULL,
+    contact_type_id INT UNSIGNED NULL,
+    contact_type_other VARCHAR(120) NULL,
+    result_id INT UNSIGNED NULL,
+    result_other VARCHAR(120) NULL,
+    notes TEXT NULL,
+    requires_follow_up TINYINT(1) NOT NULL DEFAULT 0,
+    next_follow_up_date DATE NULL,
+    created_by INT UNSIGNED NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    INDEX idx_women_case_followups_case (case_id),
+    INDEX idx_women_case_followups_next_date (next_follow_up_date),
+    CONSTRAINT fk_women_case_followups_case FOREIGN KEY (case_id) REFERENCES women_cases(id),
+    CONSTRAINT fk_women_case_followups_contact_type FOREIGN KEY (contact_type_id) REFERENCES women_followup_contact_types(id),
+    CONSTRAINT fk_women_case_followups_result FOREIGN KEY (result_id) REFERENCES women_followup_results(id),
+    CONSTRAINT fk_women_case_followups_created_by FOREIGN KEY (created_by) REFERENCES users(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS women_case_documents (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    case_id INT UNSIGNED NOT NULL,
+    original_filename VARCHAR(255) NOT NULL,
+    stored_filename VARCHAR(255) NOT NULL,
+    storage_path VARCHAR(500) NOT NULL,
+    mime_type VARCHAR(120) NULL,
+    file_size INT UNSIGNED NULL,
+    uploaded_by INT UNSIGNED NOT NULL,
+    uploaded_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    INDEX idx_women_case_documents_case (case_id),
+    CONSTRAINT fk_women_case_documents_case FOREIGN KEY (case_id) REFERENCES women_cases(id),
+    CONSTRAINT fk_women_case_documents_uploaded_by FOREIGN KEY (uploaded_by) REFERENCES users(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

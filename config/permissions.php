@@ -95,9 +95,29 @@ return [
     ['slug' => 'cctv.reports.export', 'name' => 'Exportar reportes CCTV', 'module' => 'cctv', 'description' => 'Descargar reportes en formatos exportables'],
 
     ['slug' => 'women.access', 'name' => 'Acceder a Oficina de la Mujer', 'module' => 'women', 'description' => 'Ingreso al módulo'],
-    ['slug' => 'women.cases.view', 'name' => 'Ver casos de la mujer', 'module' => 'women', 'description' => 'Consultar casos'],
-    ['slug' => 'women.cases.create', 'name' => 'Crear casos de la mujer', 'module' => 'women', 'description' => 'Registrar casos'],
-    ['slug' => 'women.cases.update', 'name' => 'Editar casos de la mujer', 'module' => 'women', 'description' => 'Modificar casos'],
+    ['slug' => 'women.dashboard.view', 'name' => 'Ver panel Oficina de la Mujer', 'module' => 'women', 'description' => 'Consultar el dashboard del módulo'],
+
+    ['slug' => 'women.cases.view', 'name' => 'Ver casos', 'module' => 'women', 'description' => 'Consultar casos propios o asignados'],
+    ['slug' => 'women.cases.view_all', 'name' => 'Ver todos los casos', 'module' => 'women', 'description' => 'Consultar todos los casos del módulo'],
+    ['slug' => 'women.cases.create', 'name' => 'Crear casos', 'module' => 'women', 'description' => 'Registrar nuevos casos'],
+    ['slug' => 'women.cases.edit', 'name' => 'Editar casos', 'module' => 'women', 'description' => 'Modificar casos abiertos'],
+    ['slug' => 'women.cases.close', 'name' => 'Finalizar casos', 'module' => 'women', 'description' => 'Cerrar casos registrados'],
+    ['slug' => 'women.cases.edit_closed', 'name' => 'Editar casos finalizados', 'module' => 'women', 'description' => 'Corregir casos ya finalizados'],
+
+    ['slug' => 'women.people.view', 'name' => 'Ver personas', 'module' => 'women', 'description' => 'Consultar personas afectadas'],
+    ['slug' => 'women.people.create', 'name' => 'Crear personas', 'module' => 'women', 'description' => 'Registrar personas afectadas'],
+    ['slug' => 'women.people.edit', 'name' => 'Editar personas', 'module' => 'women', 'description' => 'Modificar personas afectadas'],
+
+    ['slug' => 'women.followups.view', 'name' => 'Ver seguimientos', 'module' => 'women', 'description' => 'Consultar seguimientos de casos'],
+    ['slug' => 'women.followups.create', 'name' => 'Crear seguimientos', 'module' => 'women', 'description' => 'Registrar seguimientos'],
+    ['slug' => 'women.followups.edit', 'name' => 'Editar seguimientos', 'module' => 'women', 'description' => 'Modificar seguimientos'],
+
+    ['slug' => 'women.statistics.view', 'name' => 'Ver estadísticas', 'module' => 'women', 'description' => 'Consultar indicadores agregados'],
+
+    ['slug' => 'women.documents.view', 'name' => 'Ver documentos', 'module' => 'women', 'description' => 'Consultar documentos adjuntos de casos'],
+    ['slug' => 'women.documents.upload', 'name' => 'Subir documentos', 'module' => 'women', 'description' => 'Adjuntar documentos a casos'],
+
+    ['slug' => 'women.audit.view', 'name' => 'Ver auditoría del módulo', 'module' => 'women', 'description' => 'Consultar acciones auditadas del módulo'],
 
     ['slug' => 'guards.access', 'name' => 'Acceder a Guardias Municipales', 'module' => 'guards', 'description' => 'Ingreso al módulo'],
     ['slug' => 'guards.shifts.view', 'name' => 'Ver turnos de guardias', 'module' => 'guards', 'description' => 'Consultar turnos y novedades'],

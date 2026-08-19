@@ -87,4 +87,28 @@ final class AuditRepository
         $stmt = $this->db()->query('SELECT DISTINCT module FROM audit_logs ORDER BY module ASC');
         return $stmt->fetchAll(\PDO::FETCH_COLUMN) ?: [];
     }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    public function forResource(string $module, string $resource, int|string $resourceId, int $limit = 100): array
+    {
+        $limit = max(1, min($limit, 500));
+        $stmt = $this->db()->prepare(
+            'SELECT *
+             FROM audit_logs
+             WHERE module = :module
+               AND resource = :resource
+               AND resource_id = :resource_id
+             ORDER BY id DESC
+             LIMIT ' . $limit
+        );
+        $stmt->execute([
+            'module' => $module,
+            'resource' => $resource,
+            'resource_id' => (string) $resourceId,
+        ]);
+
+        return $stmt->fetchAll() ?: [];
+    }
 }
