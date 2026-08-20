@@ -36,6 +36,8 @@ final class AuditService
     public const ACTION_SIGNED = 'signed';
     public const ACTION_CORRECTION_REQUESTED = 'correction_requested';
     public const ACTION_REOPENED = 'reopened';
+    public const ACTION_ATTENDANCE_CONFIRMED = 'attendance_confirmed';
+    public const ACTION_ATTENDANCE_DECLINED = 'attendance_declined';
 
     public const RESOURCE_PERSON = 'senda_people';
     public const RESOURCE_ATTENTION = 'senda_attentions';

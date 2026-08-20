@@ -80,4 +80,110 @@ final class MeetingParticipantRepository
 
         return (bool) $stmt->fetchColumn();
     }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function findByAttendanceToken(string $token): ?array
+    {
+        $stmt = $this->db()->prepare(
+            'SELECT mp.*, m.meeting_number, m.status AS meeting_status
+             FROM meeting_participants mp
+             INNER JOIN meetings m ON m.id = mp.meeting_id
+             WHERE mp.attendance_token = :token
+               AND mp.participant_type = \'external\'
+               AND m.deleted_at IS NULL
+             LIMIT 1'
+        );
+        $stmt->execute(['token' => $token]);
+        $row = $stmt->fetch();
+
+        return $row ?: null;
+    }
+
+    public function ensureAttendanceToken(int $participantId): string
+    {
+        $stmt = $this->db()->prepare(
+            'SELECT attendance_token FROM meeting_participants WHERE id = :id LIMIT 1'
+        );
+        $stmt->execute(['id' => $participantId]);
+        $existing = trim((string) ($stmt->fetchColumn() ?: ''));
+
+        if ($existing !== '') {
+            return $existing;
+        }
+
+        $token = bin2hex(random_bytes(32));
+        $update = $this->db()->prepare(
+            'UPDATE meeting_participants
+             SET attendance_token = :token,
+                 attendance_status = \'pending\',
+                 attendance_responded_at = NULL,
+                 attendance_response_ip = NULL
+             WHERE id = :id'
+        );
+        $update->execute(['token' => $token, 'id' => $participantId]);
+
+        return $token;
+    }
+
+    public function markAttendanceEmailSent(int $participantId): void
+    {
+        $this->db()->prepare(
+            'UPDATE meeting_participants
+             SET attendance_email_sent_at = :sent_at
+             WHERE id = :id'
+        )->execute([
+            'sent_at' => date('Y-m-d H:i:s'),
+            'id' => $participantId,
+        ]);
+    }
+
+    public function updateAttendanceResponse(int $participantId, string $status, ?string $ip): void
+    {
+        if (!in_array($status, ['confirmed', 'declined'], true)) {
+            throw new \InvalidArgumentException('Estado de asistencia inválido.');
+        }
+
+        $this->db()->prepare(
+            'UPDATE meeting_participants
+             SET attendance_status = :status,
+                 attendance_responded_at = :responded_at,
+                 attendance_response_ip = :ip
+             WHERE id = :id'
+        )->execute([
+            'status' => $status,
+            'responded_at' => date('Y-m-d H:i:s'),
+            'ip' => $ip,
+            'id' => $participantId,
+        ]);
+    }
+
+    public function resetAttendanceForMeeting(int $meetingId): void
+    {
+        $this->db()->prepare(
+            'UPDATE meeting_participants
+             SET attendance_token = NULL,
+                 attendance_status = \'pending\',
+                 attendance_responded_at = NULL,
+                 attendance_email_sent_at = NULL,
+                 attendance_response_ip = NULL
+             WHERE meeting_id = :meeting_id
+               AND participant_type = \'external\''
+        )->execute(['meeting_id' => $meetingId]);
+    }
+
+    public function hasConfirmedExternalAttendance(int $meetingId): bool
+    {
+        $stmt = $this->db()->prepare(
+            'SELECT 1 FROM meeting_participants
+             WHERE meeting_id = :meeting_id
+               AND participant_type = \'external\'
+               AND attendance_status = \'confirmed\'
+             LIMIT 1'
+        );
+        $stmt->execute(['meeting_id' => $meetingId]);
+
+        return (bool) $stmt->fetchColumn();
+    }
 }

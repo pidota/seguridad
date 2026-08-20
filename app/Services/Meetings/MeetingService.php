@@ -65,6 +65,7 @@ final class MeetingService
         $meeting['participants'] = $this->presentParticipants($this->participants->forMeeting($id));
         $meeting['topics'] = $this->topics->forMeeting($id);
         $meeting['agreements'] = $this->presentAgreements($this->agreements->forMeeting($id));
+        $meeting['can_delete'] = $this->access->canDelete($meeting);
 
         return $meeting;
     }
@@ -303,6 +304,7 @@ final class MeetingService
                 'reopened_by' => $userId,
                 'reopen_reason' => $reason,
             ]);
+            $this->participants->resetAttendanceForMeeting($id);
 
             $after = $this->findDetailed($id);
             $this->audit->reopened(
@@ -328,6 +330,38 @@ final class MeetingService
         }
     }
 
+    public function delete(int $id): void
+    {
+        $before = $this->findDetailed($id);
+        $this->access->assertCanDelete($before);
+
+        $pdo = Database::connection();
+        $started = $pdo->inTransaction();
+        if (!$started) {
+            $pdo->beginTransaction();
+        }
+
+        try {
+            $this->meetingSignatures->invalidateForMeeting($id);
+            $this->meetings->softDelete($id);
+            $this->audit->deleted($id, $this->auditSnapshot($before));
+
+            if (!$started) {
+                $pdo->commit();
+            }
+        } catch (\Throwable $e) {
+            if (!$started && $pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+
+            if ($e instanceof HttpException) {
+                throw $e;
+            }
+
+            throw new HttpException(500, 'No fue posible eliminar la reunión.');
+        }
+    }
+
     public function canCancel(array $meeting): bool
     {
         return $this->access->canCancel($meeting);
@@ -336,6 +370,11 @@ final class MeetingService
     public function canReopen(array $meeting): bool
     {
         return $this->access->canReopen($meeting);
+    }
+
+    public function canDelete(array $meeting): bool
+    {
+        return $this->access->canDelete($meeting);
     }
 
     /**
@@ -370,6 +409,7 @@ final class MeetingService
             }
         }
         $presented['participants_label'] = $names !== [] ? implode(', ', array_filter($names)) : '—';
+        $presented['can_delete'] = $this->access->canDelete($row);
 
         return $presented;
     }
@@ -385,10 +425,27 @@ final class MeetingService
                 ? (string) ($row['user_name'] ?? '')
                 : (string) ($row['external_name'] ?? '');
             $row['signature_required'] = !empty($row['signature_required']);
+            $row['attendance_label'] = $this->attendanceLabel($row);
         }
         unset($row);
 
         return $rows;
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     */
+    private function attendanceLabel(array $row): ?string
+    {
+        if (($row['participant_type'] ?? '') !== 'external') {
+            return null;
+        }
+
+        return match ((string) ($row['attendance_status'] ?? 'pending')) {
+            'confirmed' => 'Asistencia confirmada',
+            'declined' => 'Asistencia declinada',
+            default => !empty($row['attendance_email_sent_at']) ? 'Confirmación pendiente' : null,
+        };
     }
 
     /**

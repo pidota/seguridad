@@ -197,6 +197,19 @@ final class MeetingRepository
         }
     }
 
+    public function softDelete(int $id): void
+    {
+        $stmt = $this->db()->prepare(
+            'UPDATE meetings SET deleted_at = NOW(), updated_at = NOW()
+             WHERE id = :id AND deleted_at IS NULL'
+        );
+        $stmt->execute(['id' => $id]);
+
+        if ($stmt->rowCount() < 1) {
+            throw new \RuntimeException('No fue posible eliminar la reunión.');
+        }
+    }
+
     /**
      * @param array<string, mixed> $filters
      * @return array{0: string, 1: array<string, mixed>}

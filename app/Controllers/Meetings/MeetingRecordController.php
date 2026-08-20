@@ -106,6 +106,7 @@ final class MeetingRecordController extends MeetingController
             'canEdit' => !empty($meeting['can_edit']),
             'canCancel' => !empty($meeting['can_cancel']),
             'canReopen' => !empty($meeting['can_reopen']),
+            'canDelete' => !empty($meeting['can_delete']),
             'canFinalize' => $canFinalize,
             'canSign' => $this->signatures->canUserSign((int) $id),
             'signatures' => $signatureRows,
@@ -114,6 +115,7 @@ final class MeetingRecordController extends MeetingController
             'finalizeUrl' => $this->finalizeUrl($source, (int) $id),
             'cancelUrl' => $this->cancelUrl($source, (int) $id),
             'reopenUrl' => $this->reopenUrl($source, (int) $id),
+            'deleteUrl' => $this->deleteUrl($source, (int) $id),
             'signUrl' => $this->signReviewUrl($source, (int) $id),
             'editUrl' => $this->editUrl($source, (int) $id),
             'listUrl' => $this->listUrl($source),
@@ -197,15 +199,22 @@ final class MeetingRecordController extends MeetingController
         try {
             $meeting = $this->meetings->findDetailed($meetingId);
             $source = (string) ($meeting['source_module'] ?? MeetingSourceModule::ADMIN);
-            $this->signatures->finalize($meetingId);
+            $emailStats = $this->signatures->finalize($meetingId);
         } catch (\Throwable $e) {
             $this->failAndRedirect($e, $this->showUrl($source ?? MeetingSourceModule::ADMIN, $meetingId));
+        }
+
+        $message = 'Se bloqueó la edición y se enviaron las solicitudes de firma a los participantes internos requeridos.';
+        if (($emailStats['sent'] ?? 0) > 0) {
+            $message .= ' Se enviaron ' . (int) $emailStats['sent'] . ' correo(s) de confirmación de asistencia a participantes externos.';
+        } elseif (($emailStats['failed'] ?? 0) > 0) {
+            $message .= ' No fue posible enviar algunos correos de confirmación; revise la configuración SMTP.';
         }
 
         Session::flashAlert(
             'success',
             'Reunión finalizada',
-            'Se bloqueó la edición y se enviaron las solicitudes de firma a los participantes internos requeridos.'
+            $message
         );
         $this->redirect($this->showUrl($source, $meetingId));
     }
@@ -242,6 +251,22 @@ final class MeetingRecordController extends MeetingController
 
         Session::flashAlert('success', 'Reunión reabierta', 'El registro volvió a borrador. Puede corregirlo y finalizarlo nuevamente.');
         $this->redirect($this->editUrl($source, $meetingId));
+    }
+
+    public function destroy(Request $request, string $id): void
+    {
+        $meetingId = (int) $id;
+
+        try {
+            $meeting = $this->meetings->findDetailed($meetingId);
+            $source = (string) ($meeting['source_module'] ?? MeetingSourceModule::ADMIN);
+            $this->meetings->delete($meetingId);
+        } catch (\Throwable $e) {
+            $this->failAndRedirect($e, $this->showUrl($source ?? MeetingSourceModule::ADMIN, $meetingId));
+        }
+
+        Session::flashAlert('success', 'Reunión eliminada', 'El registro fue eliminado permanentemente del sistema.');
+        $this->redirect($this->listUrl($source));
     }
 
     /**
@@ -413,6 +438,13 @@ final class MeetingRecordController extends MeetingController
         return $source === MeetingSourceModule::SENDA
             ? url('/senda/meetings/' . $id . '/reopen')
             : url('/meetings/' . $id . '/reopen');
+    }
+
+    private function deleteUrl(string $source, int $id): string
+    {
+        return $source === MeetingSourceModule::SENDA
+            ? url('/senda/meetings/' . $id . '/delete')
+            : url('/meetings/' . $id . '/delete');
     }
 
     /**

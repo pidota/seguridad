@@ -35,6 +35,7 @@ function config(string $key, mixed $default = null): mixed
         $items['app'] = require BASE_PATH . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'app.php';
         $items['database'] = require BASE_PATH . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'database.php';
         $items['cctv'] = require BASE_PATH . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'cctv.php';
+        $items['mail'] = require BASE_PATH . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'mail.php';
     }
 
     $segments = explode('.', $key);

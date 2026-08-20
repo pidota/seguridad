@@ -166,6 +166,49 @@ final class MeetingAuditService
     }
 
     /**
+     * @param array<string, mixed> $payload
+     */
+    public function attendanceConfirmed(int $id, array $payload): void
+    {
+        $this->audit->log(
+            AuditService::ACTION_ATTENDANCE_CONFIRMED,
+            AuditService::MODULE_MEETINGS,
+            AuditService::RESOURCE_MEETING,
+            $id,
+            null,
+            $this->sanitize($payload)
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function attendanceDeclined(int $id, array $payload): void
+    {
+        $this->audit->log(
+            AuditService::ACTION_ATTENDANCE_DECLINED,
+            AuditService::MODULE_MEETINGS,
+            AuditService::RESOURCE_MEETING,
+            $id,
+            null,
+            $this->sanitize($payload)
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $snapshot
+     */
+    public function deleted(int $id, array $snapshot): void
+    {
+        $this->audit->deleted(
+            AuditService::MODULE_MEETINGS,
+            AuditService::RESOURCE_MEETING,
+            $id,
+            $this->sanitize($snapshot)
+        );
+    }
+
+    /**
      * @param array<string, mixed> $values
      * @return array<string, mixed>
      */

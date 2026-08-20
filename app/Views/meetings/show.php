@@ -37,6 +37,9 @@ $canEdit = !empty($canEdit);
         <?php if ($canCancel ?? false): ?>
             <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#meeting-cancel-modal">Anular reunión</button>
         <?php endif; ?>
+        <?php if ($canDelete ?? false): ?>
+            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#meeting-delete-modal">Eliminar</button>
+        <?php endif; ?>
         <a class="btn btn-outline-navy" href="<?= e($listUrl) ?>">Volver al listado</a>
     </div>
 </section>
@@ -70,6 +73,9 @@ $canEdit = !empty($canEdit);
                 <?php endif; ?>
                 <?php if (!empty($participant['signature_required'])): ?>
                     <span class="badge text-bg-light border ms-1">Requiere firma</span>
+                <?php endif; ?>
+                <?php if (!empty($participant['attendance_label'])): ?>
+                    <span class="badge text-bg-light border ms-1"><?= e((string) $participant['attendance_label']) ?></span>
                 <?php endif; ?>
             </li>
         <?php endforeach; ?>
@@ -253,6 +259,32 @@ $canEdit = !empty($canEdit);
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-navy" data-bs-dismiss="modal">Volver</button>
                     <button type="submit" class="btn btn-navy">Confirmar reapertura</button>
+                </div>
+            </form>
+        </div>
+    </div>
+<?php endif; ?>
+
+<?php if ($canDelete ?? false): ?>
+    <div class="modal fade" id="meeting-delete-modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <form class="modal-content" method="post" action="<?= e((string) ($deleteUrl ?? url('/meetings/' . $id . '/delete'))) ?>"
+                  data-confirm="Esta acción eliminará el registro de forma permanente. ¿Desea continuar?"
+                  data-confirm-title="Eliminar reunión">
+                <?= csrf_field() ?>
+                <div class="modal-header">
+                    <h5 class="modal-title">Eliminar reunión</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-secondary mb-0">
+                        Solo puede eliminar esta reunión porque ningún invitado externo ha confirmado su asistencia.
+                        Se invalidarán las firmas pendientes y el registro dejará de estar disponible.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-navy" data-bs-dismiss="modal">Volver</button>
+                    <button type="submit" class="btn btn-danger">Confirmar eliminación</button>
                 </div>
             </form>
         </div>

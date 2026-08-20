@@ -83,6 +83,7 @@ $pages = (int) ($pages ?? 1);
                         <?php
                         $id = (int) ($meeting['id'] ?? 0);
                         $showHref = $sourceModule === 'senda' ? url('/senda/meetings/' . $id) : url('/meetings/' . $id);
+                        $deleteHref = $sourceModule === 'senda' ? url('/senda/meetings/' . $id . '/delete') : url('/meetings/' . $id . '/delete');
                         ?>
                         <tr>
                             <td><?= e((string) ($meeting['meeting_number'] ?? '')) ?></td>
@@ -93,7 +94,19 @@ $pages = (int) ($pages ?? 1);
                             <?php endif; ?>
                             <td><?= e((string) ($meeting['participants_label'] ?? '—')) ?></td>
                             <td><span class="badge text-bg-secondary"><?= e((string) ($meeting['status_label'] ?? '—')) ?></span></td>
-                            <td class="text-end"><a class="btn btn-sm btn-outline-navy" href="<?= e($showHref) ?>">Ver</a></td>
+                            <td class="text-end">
+                                <div class="d-inline-flex flex-wrap gap-1 justify-content-end">
+                                    <a class="btn btn-sm btn-outline-navy" href="<?= e($showHref) ?>">Ver</a>
+                                    <?php if (!empty($meeting['can_delete'])): ?>
+                                        <form method="post" action="<?= e($deleteHref) ?>" class="d-inline"
+                                              data-confirm="Esta acción eliminará el registro de forma permanente. ¿Desea continuar?"
+                                              data-confirm-title="Eliminar reunión">
+                                            <?= csrf_field() ?>
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                                        </form>
+                                    <?php endif; ?>
+                                </div>
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>

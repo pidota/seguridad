@@ -25,5 +25,6 @@ $router->post('/{id}', [MeetingRecordController::class, 'update'], 'can:meetings
 $router->post('/{id}/finalize', [MeetingRecordController::class, 'finalize'], 'can:meetings.edit', 'meetings.finalize');
 $router->post('/{id}/cancel', [MeetingRecordController::class, 'cancel'], 'can:meetings.cancel', 'meetings.cancel');
 $router->post('/{id}/reopen', [MeetingRecordController::class, 'reopen'], 'can:meetings.reopen', 'meetings.reopen');
+$router->post('/{id}/delete', [MeetingRecordController::class, 'destroy'], 'can:meetings.delete', 'meetings.delete');
 $router->post('/{id}/sign', [MeetingSignatureController::class, 'sign'], 'can:meetings.sign', 'meetings.sign');
 $router->post('/{id}/request-correction', [MeetingSignatureController::class, 'requestCorrection'], 'can:meetings.sign', 'meetings.request_correction');

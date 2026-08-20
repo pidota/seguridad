@@ -20,6 +20,7 @@ final class MeetingSignatureService
         private readonly MeetingService $meetingService = new MeetingService(),
         private readonly UserSignatureService $userSignatures = new UserSignatureService(),
         private readonly NotificationService $notifications = new NotificationService(),
+        private readonly MeetingAttendanceService $attendance = new MeetingAttendanceService(),
         private readonly MeetingAuditService $audit = new MeetingAuditService()
     ) {
     }
@@ -57,7 +58,10 @@ final class MeetingSignatureService
         }, $this->signatures->pendingMeetingsForUser($userId));
     }
 
-    public function finalize(int $meetingId): void
+    /**
+     * @return array{sent: int, failed: int, skipped: int}
+     */
+    public function finalize(int $meetingId): array
     {
         $meeting = $this->meetingService->findDetailed($meetingId);
         $this->meetingService->assertCanEdit($meeting);
@@ -100,6 +104,15 @@ final class MeetingSignatureService
             if (!$started) {
                 $pdo->commit();
             }
+
+            $emailStats = ['sent' => 0, 'failed' => 0, 'skipped' => 0];
+            try {
+                $emailStats = $this->attendance->sendInvitations($meetingId);
+            } catch (\Throwable $e) {
+                \Core\Logger::error($e);
+            }
+
+            return $emailStats;
         } catch (\Throwable $e) {
             if (!$started && $pdo->inTransaction()) {
                 $pdo->rollBack();

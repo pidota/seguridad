@@ -52,6 +52,8 @@ final class MeetingsFunctionalTests
             $this->assertUpdateDraft();
             $this->assertScopedAccess();
             $this->assertFinalizeAndSignatures();
+            $this->assertExternalAttendanceConfirmation();
+            $this->assertDeleteMeeting();
             $this->assertReopenAndCancel();
         } finally {
             $this->cleanup();
@@ -96,6 +98,16 @@ final class MeetingsFunctionalTests
             $stmt->execute(['table' => $table]);
             $this->check('Existe tabla ' . $table, (bool) $stmt->fetchColumn());
         }
+
+        $stmt = $pdo->prepare(
+            'SELECT 1 FROM information_schema.columns
+             WHERE table_schema = DATABASE()
+               AND table_name = :table
+               AND column_name = :column
+             LIMIT 1'
+        );
+        $stmt->execute(['table' => 'meeting_participants', 'column' => 'attendance_token']);
+        $this->check('Existe columna attendance_token', (bool) $stmt->fetchColumn());
     }
 
     private function assertCreateDraftWithSections(): void
@@ -119,6 +131,7 @@ final class MeetingsFunctionalTests
                 'external_name' => 'Invitado Externo',
                 'external_position' => 'Consultor',
                 'external_organization' => 'Externa',
+                'external_email' => 'externo.test@example.com',
             ]],
             'topics' => [
                 ['description' => 'Tema uno de prueba funcional.'],
@@ -171,6 +184,12 @@ final class MeetingsFunctionalTests
                 'participant_type' => 'internal',
                 'user_id' => (int) ($internal['user_id'] ?? 0),
                 'signature_required' => '1',
+            ], [
+                'participant_type' => 'external',
+                'external_name' => 'Invitado Externo',
+                'external_position' => 'Consultor',
+                'external_organization' => 'Externa',
+                'external_email' => 'externo.test@example.com',
             ]],
             'topics' => [['description' => 'Tema actualizado.']],
             'agreements' => [['description' => 'Acuerdo actualizado.']],
@@ -294,6 +313,98 @@ final class MeetingsFunctionalTests
         $this->check('Usuario sin solicitud no puede firmar (IDOR)', $idor);
 
         $this->check('Contador de firmas pendientes', $signatureService->getPendingCountForUser($this->adminId) >= 0);
+    }
+
+    private function assertExternalAttendanceConfirmation(): void
+    {
+        Session::put('auth_user_id', $this->adminId);
+        Auth::forgetCache();
+        Permission::flush();
+
+        $id = $this->meetingIds[0] ?? 0;
+        if ($id < 1) {
+            $this->check('Token de asistencia externa generado', false);
+            $this->check('Confirmación de asistencia externa', false);
+
+            return;
+        }
+
+        $pdo = Database::connection();
+        $stmt = $pdo->prepare(
+            "SELECT id, attendance_token, attendance_status
+             FROM meeting_participants
+             WHERE meeting_id = :meeting_id AND participant_type = 'external'
+             LIMIT 1"
+        );
+        $stmt->execute(['meeting_id' => $id]);
+        $external = $stmt->fetch() ?: [];
+
+        $token = trim((string) ($external['attendance_token'] ?? ''));
+        $this->check('Token de asistencia externa generado', preg_match('/^[a-f0-9]{64}$/', $token) === 1);
+
+        $attendance = new \App\Services\Meetings\MeetingAttendanceService();
+        $invitation = $attendance->findInvitation($token);
+        $this->check('Invitación externa es consultable por token', ($invitation['participant']['id'] ?? 0) === (int) ($external['id'] ?? 0));
+
+        $attendance->respond($token, 'confirm');
+        $stmt->execute(['meeting_id' => $id]);
+        $updated = $stmt->fetch() ?: [];
+        $this->check('Confirmación de asistencia externa', ($updated['attendance_status'] ?? '') === 'confirmed');
+
+        $duplicate = false;
+        try {
+            $attendance->respond($token, 'decline');
+        } catch (HttpException $e) {
+            $duplicate = $e->getStatusCode() === 409;
+        }
+        $this->check('No se puede responder dos veces la invitación', $duplicate);
+    }
+
+    private function assertDeleteMeeting(): void
+    {
+        Session::put('auth_user_id', $this->adminId);
+        Auth::forgetCache();
+        Permission::flush();
+
+        $service = new MeetingService();
+        $pdo = Database::connection();
+        $otherUserId = (int) $pdo->query('SELECT id FROM users WHERE is_active = 1 AND id <> ' . $this->adminId . ' LIMIT 1')->fetchColumn();
+
+        $deleteId = $service->createDraft(MeetingSourceModule::SENDA, [
+            'meeting_date' => date('Y-m-d'),
+            'meeting_time' => '15:00',
+            'meeting_place' => 'Sala eliminable',
+            'include_creator' => '0',
+            'participants' => [[
+                'participant_type' => 'internal',
+                'user_id' => $otherUserId,
+                'signature_required' => '1',
+            ], [
+                'participant_type' => 'external',
+                'external_name' => 'Externo eliminable',
+                'external_email' => 'eliminar.test@example.com',
+            ]],
+            'topics' => [['description' => 'Tema eliminable.']],
+            'agreements' => [['description' => 'Acuerdo eliminable.']],
+            'next_meeting_required' => 'no',
+        ]);
+
+        $blocked = false;
+        try {
+            $service->delete($this->meetingIds[0] ?? 0);
+        } catch (HttpException $e) {
+            $blocked = $e->getStatusCode() === 409;
+        }
+        $this->check('No elimina reunión con asistencia externa confirmada', $blocked);
+
+        $service->delete($deleteId);
+        $missing = false;
+        try {
+            $service->findDetailed($deleteId);
+        } catch (HttpException $e) {
+            $missing = $e->getStatusCode() === 404;
+        }
+        $this->check('Reunión eliminable desaparece del sistema', $missing);
     }
 
     private function assertReopenAndCancel(): void

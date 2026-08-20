@@ -80,3 +80,4 @@ $router->post('/meetings/{id}/sign', [MeetingController::class, 'sign'], 'can:me
 $router->post('/meetings/{id}/request-correction', [MeetingController::class, 'requestCorrection'], 'can:meetings.sign', 'senda.meetings.request_correction');
 $router->post('/meetings/{id}/cancel', [MeetingController::class, 'cancel'], 'can:meetings.cancel', 'senda.meetings.cancel');
 $router->post('/meetings/{id}/reopen', [MeetingController::class, 'reopen'], 'can:meetings.reopen', 'senda.meetings.reopen');
+$router->post('/meetings/{id}/delete', [MeetingController::class, 'destroy'], 'can:meetings.delete', 'senda.meetings.delete');

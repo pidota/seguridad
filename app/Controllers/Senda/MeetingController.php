@@ -85,6 +85,11 @@ final class MeetingController extends SendaController
         $this->withSendaSource(fn () => $this->meetings->reopen($request, $id));
     }
 
+    public function destroy(Request $request, string $id): void
+    {
+        $this->withSendaSource(fn () => $this->meetings->destroy($request, $id));
+    }
+
     private function withSendaSource(callable $callback): void
     {
         MeetingSourceContext::set(MeetingSourceModule::SENDA);

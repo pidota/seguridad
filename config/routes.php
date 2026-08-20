@@ -29,6 +29,9 @@ $router->post('/password/change', [PasswordController::class, 'update'], 'auth',
 $router->get('/password/forgot', [PasswordController::class, 'showForgot'], 'guest', 'password.forgot');
 $router->post('/password/forgot', [PasswordController::class, 'forgot'], 'guest', 'password.forgot.attempt');
 
+$router->get('/meetings/attendance/{token}', [\App\Controllers\Meetings\MeetingAttendanceController::class, 'show'], [], 'meetings.attendance.show');
+$router->post('/meetings/attendance/{token}', [\App\Controllers\Meetings\MeetingAttendanceController::class, 'respond'], [], 'meetings.attendance.respond');
+
 $router->get('/dashboard', [DashboardController::class, 'index'], ['auth', 'can:dashboard.access'], 'dashboard');
 
 $router->get('/profile', [ProfileController::class, 'show'], 'auth', 'profile');

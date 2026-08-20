@@ -128,6 +128,7 @@ return [
     ['slug' => 'meetings.cancel', 'name' => 'Anular reuniones', 'module' => 'meetings', 'description' => 'Anular registros de reunión'],
     ['slug' => 'meetings.view_all', 'name' => 'Ver todas las reuniones', 'module' => 'meetings', 'description' => 'Consultar reuniones de cualquier módulo'],
     ['slug' => 'meetings.reopen', 'name' => 'Reabrir reuniones', 'module' => 'meetings', 'description' => 'Reabrir reuniones para corrección e invalidar firmas previas'],
+    ['slug' => 'meetings.delete', 'name' => 'Eliminar reuniones', 'module' => 'meetings', 'description' => 'Eliminar registros de reunión sin confirmación de asistencia externa'],
     ['slug' => 'meetings.signature.manage', 'name' => 'Gestionar firma personal', 'module' => 'meetings', 'description' => 'Cargar y actualizar firma simple PNG en el perfil'],
 
     ['slug' => 'senda.meetings.view', 'name' => 'Ver reuniones SENDA', 'module' => 'senda', 'description' => 'Consultar reuniones originadas en SENDA'],

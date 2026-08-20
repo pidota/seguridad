@@ -129,6 +129,43 @@ final class MeetingAccessPolicy
     /**
      * @param array<string, mixed> $meeting
      */
+    public function canDelete(array $meeting): bool
+    {
+        if (!hasPermission('meetings.delete')) {
+            return false;
+        }
+
+        if (!$this->canDeleteMeeting($meeting)) {
+            return false;
+        }
+
+        $meetingId = (int) ($meeting['id'] ?? 0);
+        if ($meetingId < 1) {
+            return false;
+        }
+
+        return !$this->participants->hasConfirmedExternalAttendance($meetingId);
+    }
+
+    /**
+     * @param array<string, mixed> $meeting
+     */
+    public function assertCanDelete(array $meeting): void
+    {
+        $this->assertCanView($meeting);
+
+        if (!$this->canDelete($meeting)) {
+            if ($this->participants->hasConfirmedExternalAttendance((int) ($meeting['id'] ?? 0))) {
+                throw new HttpException(409, 'No puede eliminar la reunión porque al menos un invitado externo ya confirmó su asistencia.');
+            }
+
+            throw new HttpException(403, 'No tiene permiso para eliminar esta reunión.');
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $meeting
+     */
     public function assertCanCancel(array $meeting): void
     {
         $this->assertCanView($meeting);
@@ -148,6 +185,27 @@ final class MeetingAccessPolicy
         if (!$this->canReopen($meeting)) {
             throw new HttpException(403, 'No tiene permiso para reabrir esta reunión.');
         }
+    }
+
+    /**
+     * @param array<string, mixed> $meeting
+     */
+    private function canDeleteMeeting(array $meeting): bool
+    {
+        if (hasPermission('meetings.view_all')) {
+            return true;
+        }
+
+        $userId = Auth::id();
+        if ($userId !== null && (int) ($meeting['created_by'] ?? 0) === $userId) {
+            return true;
+        }
+
+        if (($meeting['source_module'] ?? '') === MeetingSourceModule::SENDA && hasPermission('senda.meetings.view')) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
