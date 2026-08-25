@@ -14,6 +14,7 @@ final class AuditService
     public const MODULE_CCTV = 'cctv';
     public const MODULE_WOMEN = 'women';
     public const MODULE_MEETINGS = 'meetings';
+    public const MODULE_GUARDS = 'guards';
 
     public const ACTION_CREATED = 'created';
     public const ACTION_UPDATED = 'updated';
@@ -52,6 +53,8 @@ final class AuditService
     public const RESOURCE_WOMEN_CASE = 'women_cases';
     public const RESOURCE_WOMEN_PERSON = 'women_people';
     public const RESOURCE_MEETING = 'meetings';
+    public const RESOURCE_GUARDS_SHIFT = 'guards_shifts';
+    public const RESOURCE_GUARDS_LOG_ENTRY = 'guards_log_entries';
 
     /** @var list<string> */
     private const SENSITIVE = [

@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Services\WomenOffice;
 
 use App\Repositories\WomenOffice\StatsRepository;
+use App\Services\Export\StatisticsReportExporter;
 
 final class WomenStatisticsService
 {
     public function __construct(
-        private readonly StatsRepository $stats = new StatsRepository()
+        private readonly StatsRepository $stats = new StatsRepository(),
+        private readonly StatisticsReportExporter $exporter = new StatisticsReportExporter()
     ) {
     }
 
@@ -80,6 +82,31 @@ final class WomenStatisticsService
                 'count' => $this->stats->overdueFollowUpCases($from, $to),
                 'tone' => 'overdue',
             ],
+        ];
+    }
+
+    /**
+     * @param array{date_from: string, date_to: string} $filters
+     * @return array{filename: string, content: string}
+     */
+    public function buildExport(array $filters): array
+    {
+        $summary = array_map(
+            static fn (array $card): array => [
+                'label' => (string) ($card['label'] ?? ''),
+                'count' => (int) ($card['count'] ?? 0),
+            ],
+            $this->summaryCards($filters)
+        );
+
+        return [
+            'filename' => $this->exporter->filename('mujer_indicadores', $filters),
+            'content' => $this->exporter->toCsv([
+                'title' => 'Estadísticas Oficina de la Mujer',
+                'module_label' => 'Oficina de la Mujer',
+                'date_from' => $filters['date_from'],
+                'date_to' => $filters['date_to'],
+            ], $summary, $this->tables($filters)),
         ];
     }
 

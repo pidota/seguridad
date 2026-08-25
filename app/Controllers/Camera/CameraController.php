@@ -52,6 +52,7 @@ abstract class CameraController extends Controller
         $items = [
             ['label' => 'Inicio', 'path' => '/cctv', 'permission' => 'cctv.dashboard.view', 'icon' => 'bi-speedometer2', 'exact' => true],
             ['label' => 'Turnos', 'path' => '/cctv/shifts', 'permission' => 'cctv.shifts.view', 'icon' => 'bi-clock-history'],
+            ['label' => 'Pendientes', 'path' => '/cctv/handovers', 'permission' => 'cctv.handovers.view', 'icon' => 'bi-arrow-left-right'],
             ['label' => 'Bitácora', 'path' => '/cctv/log', 'permission' => 'cctv.log.view', 'icon' => 'bi-journal-text'],
             ['label' => 'Visitas y Solicitudes', 'path' => '/cctv/visits', 'permission' => 'cctv.visits.view', 'icon' => 'bi-person-lines-fill'],
             ['label' => 'Cámaras', 'path' => '/cctv/cameras', 'permission' => 'cctv.cameras.view', 'icon' => 'bi-camera-reels'],

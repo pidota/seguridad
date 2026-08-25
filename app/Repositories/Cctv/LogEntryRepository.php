@@ -473,8 +473,9 @@ final class LogEntryRepository
 
         $createdBy = (int) ($filters['created_by'] ?? 0);
         if ($createdBy > 0) {
-            $where .= ' AND e.created_by = :created_by';
+            $where .= ' AND (e.created_by = :created_by OR e.current_operator_id = :current_operator_id)';
             $params['created_by'] = $createdBy;
+            $params['current_operator_id'] = $createdBy;
         }
 
         $dateFrom = trim((string) ($filters['date_from'] ?? ''));
@@ -553,6 +554,89 @@ final class LogEntryRepository
     }
 
     /**
+     * @return list<array<string, mixed>>
+     */
+    public function listPendingForOperator(int $operatorId): array
+    {
+        $stmt = $this->db()->prepare(
+            $this->selectListSql() . "
+             WHERE e.deleted_at IS NULL
+               AND e.current_operator_id = :operator_id
+               AND (
+                    (lt.slug IN ('incidente', 'novedad') AND e.status = 'en_desarrollo')
+                    OR (lt.slug = 'novedad_tecnica' AND e.status IN ('pendiente', 'detectado'))
+               )
+             ORDER BY e.occurred_at DESC, e.id DESC"
+        );
+        $stmt->execute(['operator_id' => $operatorId]);
+
+        return $stmt->fetchAll() ?: [];
+    }
+
+    public function updateCurrentOperator(int $id, int $operatorId): void
+    {
+        $stmt = $this->db()->prepare(
+            'UPDATE cctv_log_entries SET current_operator_id = :operator_id, updated_at = NOW()
+             WHERE id = :id AND deleted_at IS NULL'
+        );
+        $stmt->execute(['id' => $id, 'operator_id' => $operatorId]);
+    }
+
+    public function assignToShift(int $id, int $shiftId, int $operatorId): void
+    {
+        $stmt = $this->db()->prepare(
+            'UPDATE cctv_log_entries
+             SET cctv_shift_id = :shift_id,
+                 current_operator_id = :operator_id,
+                 updated_at = NOW()
+             WHERE id = :id AND deleted_at IS NULL'
+        );
+        $stmt->execute([
+            'id' => $id,
+            'shift_id' => $shiftId,
+            'operator_id' => $operatorId,
+        ]);
+    }
+
+    public function updateStatus(int $id, string $status): void
+    {
+        $stmt = $this->db()->prepare(
+            'UPDATE cctv_log_entries SET status = :status, updated_at = NOW()
+             WHERE id = :id AND deleted_at IS NULL'
+        );
+        $stmt->execute(['id' => $id, 'status' => $status]);
+    }
+
+    /**
+     * @return array{total: int, finished: int, in_progress: int}
+     */
+    public function shiftStatusStats(int $shiftId): array
+    {
+        $stmt = $this->db()->prepare(
+            "SELECT COUNT(*) AS total,
+                    SUM(CASE WHEN (
+                        (lt.slug IN ('incidente', 'novedad') AND e.status = 'finalizado')
+                        OR (lt.slug = 'novedad_tecnica' AND e.status = 'operativo_nuevamente')
+                    ) THEN 1 ELSE 0 END) AS finished,
+                    SUM(CASE WHEN (
+                        (lt.slug IN ('incidente', 'novedad') AND e.status = 'en_desarrollo')
+                        OR (lt.slug = 'novedad_tecnica' AND e.status IN ('pendiente', 'detectado'))
+                    ) THEN 1 ELSE 0 END) AS in_progress
+             FROM cctv_log_entries e
+             INNER JOIN cctv_log_types lt ON lt.id = e.cctv_log_type_id
+             WHERE e.cctv_shift_id = :shift_id AND e.deleted_at IS NULL"
+        );
+        $stmt->execute(['shift_id' => $shiftId]);
+        $row = $stmt->fetch() ?: [];
+
+        return [
+            'total' => (int) ($row['total'] ?? 0),
+            'finished' => (int) ($row['finished'] ?? 0),
+            'in_progress' => (int) ($row['in_progress'] ?? 0),
+        ];
+    }
+
+    /**
      * @param array<string, mixed> $data
      */
     public function create(array $data): int
@@ -562,13 +646,13 @@ final class LogEntryRepository
                     incident_type_other, technical_issue_other,
                     cctv_camera_id, cctv_equipment_id, camera_status_applied, sector_id, occurred_at, observations,
                     police_arrived, police_arrival_time, coordination_notified, status,
-                    related_entity_type, related_entity_id, created_by
+                    related_entity_type, related_entity_id, created_by, current_operator_id
                 ) VALUES (
                     :cctv_shift_id, :cctv_log_type_id, :cctv_incident_type_id, :cctv_technical_issue_type_id,
                     :incident_type_other, :technical_issue_other,
                     :cctv_camera_id, :cctv_equipment_id, :camera_status_applied, :sector_id, :occurred_at, :observations,
                     :police_arrived, :police_arrival_time, :coordination_notified, :status,
-                    :related_entity_type, :related_entity_id, :created_by
+                    :related_entity_type, :related_entity_id, :created_by, :current_operator_id
                 )';
 
         $stmt = $this->db()->prepare($sql);
@@ -592,6 +676,7 @@ final class LogEntryRepository
             'related_entity_type' => $data['related_entity_type'] ?? null,
             'related_entity_id' => $data['related_entity_id'] ?? null,
             'created_by' => $data['created_by'],
+            'current_operator_id' => $data['current_operator_id'] ?? $data['created_by'],
         ]);
 
         return (int) $this->db()->lastInsertId();
@@ -706,6 +791,7 @@ final class LogEntryRepository
                 e.coordination_notified,
                 e.status,
                 e.created_by,
+                e.current_operator_id,
                 e.cancelled_by,
                 e.created_at,
                 e.updated_at,

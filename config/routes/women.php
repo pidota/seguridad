@@ -51,3 +51,4 @@ $router->post('/people/{id}/use', [PeopleController::class, 'usePerson'], 'can:w
 $router->get('/follow-ups', [FollowUpController::class, 'index'], 'can:women.followups.view', 'women.followups.index');
 
 $router->get('/statistics', [StatisticsController::class, 'index'], 'can:women.statistics.view', 'women.statistics.index');
+$router->get('/statistics/export', [StatisticsController::class, 'export'], 'can:women.statistics.export', 'women.statistics.export');

@@ -25,6 +25,11 @@ $router->post('/shifts/close', [ShiftController::class, 'close'], 'can:cctv.shif
 
 $router->get('/shifts/{id}', [ShiftController::class, 'show'], 'can:cctv.shifts.view', 'cctv.shifts.show');
 
+$router->get('/handovers', [\App\Controllers\Cctv\HandoverController::class, 'index'], 'can:cctv.handovers.view', 'cctv.handovers.index');
+$router->get('/handovers/{id}', [\App\Controllers\Cctv\HandoverController::class, 'show'], 'can:cctv.handovers.view', 'cctv.handovers.show');
+$router->post('/handovers/{id}/accept', [\App\Controllers\Cctv\HandoverController::class, 'accept'], 'can:cctv.handovers.accept', 'cctv.handovers.accept');
+$router->post('/handovers/{id}/decline', [\App\Controllers\Cctv\HandoverController::class, 'decline'], 'can:cctv.handovers.decline', 'cctv.handovers.decline');
+
 $router->get('/log', [EventController::class, 'index'], 'can:cctv.log.view', 'cctv.log.index');
 $router->get('/log/create', [LogEntryController::class, 'create'], 'can:cctv.log.create', 'cctv.log.create');
 $router->post('/log', [LogEntryController::class, 'store'], 'can:cctv.log.create', 'cctv.log.store');

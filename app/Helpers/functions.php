@@ -215,6 +215,13 @@ function cctv_nav(array $nav): string
     ], null);
 }
 
+function guards_nav(array $nav): string
+{
+    return View::make('guards/components/nav', [
+        'guardsNav' => $nav,
+    ], null);
+}
+
 function women_nav(array $nav): string
 {
     return View::make('women-office/components/nav', [
@@ -271,6 +278,25 @@ function cctv_can_edit_log_entry(array $record): bool
 function cctv_can_cancel_log_entry(array $record): bool
 {
     return (new \App\Services\Cctv\ClosedShiftPolicy())->canCancelLogEntry($record);
+}
+
+function cctv_pending_handovers_count(): int
+{
+    if (!hasPermission('cctv.handovers.view') || user() === null) {
+        return 0;
+    }
+
+    $operatorId = (int) (user()['id'] ?? 0);
+    if ($operatorId < 1) {
+        return 0;
+    }
+
+    $openShift = (new \App\Repositories\Cctv\ShiftRepository())->findOpenByOperator($operatorId);
+    if ($openShift === null) {
+        return 0;
+    }
+
+    return (new \App\Services\Cctv\LogHandoverService())->countUnreviewedForShift((int) $openShift['id'], $operatorId);
 }
 
 function cctv_can_edit_shift(array $shift): bool
@@ -331,4 +357,25 @@ function meetings_pending_signature_count(): int
     }
 
     return (new \App\Services\Meetings\MeetingSignatureService())->getPendingCountForUser();
+}
+
+function notifications_unread_count(): int
+{
+    if (user() === null) {
+        return 0;
+    }
+
+    return (new \App\Services\NotificationService())->unreadCount();
+}
+
+/**
+ * @return list<array<string, mixed>>
+ */
+function notifications_recent(int $limit = 8): array
+{
+    if (user() === null) {
+        return [];
+    }
+
+    return (new \App\Services\NotificationService())->recentForNavbar($limit);
 }

@@ -37,6 +37,10 @@ $router->get('/dashboard', [DashboardController::class, 'index'], ['auth', 'can:
 $router->get('/profile', [ProfileController::class, 'show'], 'auth', 'profile');
 $router->get('/settings', [SettingsController::class, 'index'], ['auth', 'can:settings.access'], 'settings');
 
+$router->get('/notifications', [\App\Controllers\NotificationController::class, 'index'], 'auth', 'notifications.index');
+$router->post('/notifications/read-all', [\App\Controllers\NotificationController::class, 'markAllRead'], 'auth', 'notifications.read_all');
+$router->post('/notifications/{id}/read', [\App\Controllers\NotificationController::class, 'markRead'], 'auth', 'notifications.read');
+
 $router->get('/users', [UserController::class, 'index'], ['auth', 'can:users.view'], 'users.index');
 $router->get('/users/create', [UserController::class, 'create'], ['auth', 'can:users.create'], 'users.create');
 $router->post('/users', [UserController::class, 'store'], ['auth', 'can:users.create'], 'users.store');
@@ -79,4 +83,6 @@ $router->group('/meetings', ['auth', 'can:meetings.access'], static function (Ro
     require BASE_PATH . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'routes' . DIRECTORY_SEPARATOR . 'meetings.php';
 });
 
-$router->get('/guards', [ModulePlaceholderController::class, 'guards'], ['auth', 'can:guards.access'], 'guards.index');
+$router->group('/guards', ['auth', 'can:guards.access'], static function (Router $router): void {
+    require BASE_PATH . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'routes' . DIRECTORY_SEPARATOR . 'guards.php';
+});

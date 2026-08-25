@@ -6,14 +6,91 @@ namespace App\Services\Senda;
 
 use App\Repositories\Senda\FollowUpRepository;
 use App\Repositories\Senda\StatsRepository;
+use App\Services\Export\StatisticsReportExporter;
 
 final class StatisticsService
 {
     public function __construct(
         private readonly StatsRepository $stats = new StatsRepository(),
         private readonly FollowUpRepository $followUps = new FollowUpRepository(),
-        private readonly AssistClassificationService $assistClassification = new AssistClassificationService()
+        private readonly AssistClassificationService $assistClassification = new AssistClassificationService(),
+        private readonly StatisticsReportExporter $exporter = new StatisticsReportExporter()
     ) {
+    }
+
+    /**
+     * @param array<string, mixed> $input
+     * @return array{date_from: string, date_to: string}
+     */
+    public function normalizeFilters(array $input): array
+    {
+        $dateTo = trim((string) ($input['date_to'] ?? ''));
+        $dateFrom = trim((string) ($input['date_from'] ?? ''));
+
+        if ($dateTo === '' || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateTo)) {
+            $dateTo = date('Y-m-d');
+        }
+
+        if ($dateFrom === '' || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateFrom)) {
+            $dateFrom = date('Y-01-01', strtotime($dateTo));
+        }
+
+        if ($dateFrom > $dateTo) {
+            [$dateFrom, $dateTo] = [$dateTo, $dateFrom];
+        }
+
+        return [
+            'date_from' => $dateFrom,
+            'date_to' => $dateTo,
+        ];
+    }
+
+    /**
+     * @param array{date_from: string, date_to: string} $filters
+     * @return list<array{key: string, label: string, count: int, tone: string}>
+     */
+    public function summaryCards(array $filters): array
+    {
+        $from = $filters['date_from'];
+        $to = $filters['date_to'];
+        $totals = $this->stats->periodTotals($from, $to);
+        $schedule = $this->followUps->scheduleCounts();
+
+        return [
+            ['key' => 'attentions_period', 'label' => 'Atenciones en el periodo', 'count' => $totals['attentions_period'], 'tone' => 'due'],
+            ['key' => 'derivations_period', 'label' => 'Derivaciones en el periodo', 'count' => $totals['derivations_period'], 'tone' => 'due'],
+            ['key' => 'spontaneous_period', 'label' => 'Demandas espontáneas en el periodo', 'count' => $totals['spontaneous_period'], 'tone' => 'due'],
+            ['key' => 'referrals_completed', 'label' => 'Fichas completadas en el periodo', 'count' => $totals['referrals_completed'], 'tone' => 'done'],
+            ['key' => 'screenings_period', 'label' => 'Tamizajes en el periodo', 'count' => $totals['screenings_period'], 'tone' => 'done'],
+            ['key' => 'followups_period', 'label' => 'Seguimientos realizados en el periodo', 'count' => $totals['followups_period'], 'tone' => 'done'],
+            ['key' => FollowUpStatus::PENDING, 'label' => FollowUpStatus::label(FollowUpStatus::PENDING), 'count' => (int) ($schedule[FollowUpStatus::PENDING] ?? 0), 'tone' => FollowUpStatus::tone(FollowUpStatus::PENDING)],
+            ['key' => FollowUpStatus::OVERDUE, 'label' => FollowUpStatus::label(FollowUpStatus::OVERDUE), 'count' => (int) ($schedule[FollowUpStatus::OVERDUE] ?? 0), 'tone' => FollowUpStatus::tone(FollowUpStatus::OVERDUE)],
+        ];
+    }
+
+    /**
+     * @param array{date_from: string, date_to: string} $filters
+     * @return array{filename: string, content: string}
+     */
+    public function buildExport(array $filters): array
+    {
+        $summary = array_map(
+            static fn (array $card): array => [
+                'label' => (string) ($card['label'] ?? ''),
+                'count' => (int) ($card['count'] ?? 0),
+            ],
+            $this->summaryCards($filters)
+        );
+
+        return [
+            'filename' => $this->exporter->filename('senda_indicadores', $filters),
+            'content' => $this->exporter->toCsv([
+                'title' => 'Estadísticas SENDA',
+                'module_label' => 'SENDA',
+                'date_from' => $filters['date_from'],
+                'date_to' => $filters['date_to'],
+            ], $summary, $this->tables($filters)),
+        ];
     }
 
     /**
@@ -111,49 +188,49 @@ final class StatisticsService
     /**
      * Tablas de indicadores. Sin gráficos: cada fila sale de una agregación MySQL.
      *
+     * @param array{date_from?: string, date_to?: string}|null $filters
      * @return list<array{title: string, columns: list<string>, rows: list<array{0: string, 1: int}>}>
      */
-    public function tables(): array
+    public function tables(?array $filters = null): array
     {
-        $today = FollowUpStatus::today();
-        $monthStart = date('Y-m-01', strtotime($today));
-        $monthEnd = date('Y-m-t', strtotime($today));
-        $totals = $this->stats->dashboardTotals($today, $monthStart, $monthEnd);
-        $schedule = $this->followUps->scheduleCounts($today);
+        $filters ??= $this->normalizeFilters([]);
+        $from = $filters['date_from'];
+        $to = $filters['date_to'];
+        $totals = $this->stats->periodTotals($from, $to);
+        $schedule = $this->followUps->scheduleCounts();
 
         return [
             [
                 'title' => 'Atenciones mensuales',
                 'columns' => ['Mes', 'Atenciones'],
-                'rows' => $this->monthlyRows(),
+                'rows' => $this->monthlyRows($from, $to),
             ],
             [
                 'title' => 'Atenciones por edad',
                 'columns' => ['Tramo etario', 'Atenciones'],
-                'rows' => $this->filledRows($this->stats->attentionsByAge(), 'bucket', $this->ageLabels()),
+                'rows' => $this->filledRows($this->stats->attentionsByAge($from, $to), 'bucket', $this->ageLabels()),
             ],
             [
                 'title' => 'Tipo de ingreso',
                 'columns' => ['Tipo', 'Atenciones'],
-                'rows' => $this->entryTypeRows(),
+                'rows' => $this->entryTypeRows($from, $to),
             ],
             [
                 'title' => 'Centro o dispositivo referido',
                 'columns' => ['Centro o dispositivo', 'Fichas'],
-                'rows' => $this->destinationCenterRows(),
+                'rows' => $this->destinationCenterRows($from, $to),
             ],
             [
                 'title' => 'Clasificaciones',
                 'columns' => ['Clasificación ASSIST', 'Registros'],
-                'rows' => $this->classificationRows(),
+                'rows' => $this->classificationRows($from, $to),
             ],
             [
                 'title' => 'Seguimientos',
                 'columns' => ['Indicador', 'Cantidad'],
                 'rows' => [
-                    ['Total', $this->stats->followUpTotal()],
+                    ['Realizados en el periodo', $totals['followups_period']],
                     ['Realizados hoy', (int) ($schedule[FollowUpStatus::DONE_TODAY] ?? 0)],
-                    ['Realizados este mes', $totals['followups_month']],
                     ['Pendientes', (int) ($schedule[FollowUpStatus::PENDING] ?? 0)],
                     ['Atrasados', (int) ($schedule[FollowUpStatus::OVERDUE] ?? 0)],
                 ],
@@ -161,7 +238,7 @@ final class StatisticsService
             [
                 'title' => 'Resultados de seguimiento',
                 'columns' => ['Resultado', 'Seguimientos'],
-                'rows' => $this->followUpResultRows(),
+                'rows' => $this->followUpResultRows($from, $to),
             ],
         ];
     }
@@ -169,20 +246,23 @@ final class StatisticsService
     /**
      * @return list<array{0: string, 1: int}>
      */
-    private function monthlyRows(): array
+    private function monthlyRows(string $dateFrom, string $dateTo): array
     {
         $indexed = [];
-        foreach ($this->stats->attentionsByMonth(12) as $row) {
+        foreach ($this->stats->attentionsByMonthForPeriod($dateFrom, $dateTo) as $row) {
             $indexed[(string) $row['period']] = (int) $row['total'];
         }
 
-        $cursor = new \DateTimeImmutable('first day of this month');
+        $start = new \DateTimeImmutable($dateFrom);
+        $end = new \DateTimeImmutable($dateTo);
+        $cursor = $start->modify('first day of this month');
+        $last = $end->modify('first day of this month');
         $rows = [];
 
-        for ($offset = 11; $offset >= 0; $offset--) {
-            $periodDate = $cursor->modify('-' . $offset . ' months');
-            $period = $periodDate->format('Y-m');
-            $rows[] = [$periodDate->format('m-Y'), $indexed[$period] ?? 0];
+        while ($cursor <= $last) {
+            $period = $cursor->format('Y-m');
+            $rows[] = [$cursor->format('m-Y'), $indexed[$period] ?? 0];
+            $cursor = $cursor->modify('+1 month');
         }
 
         return $rows;
@@ -191,20 +271,20 @@ final class StatisticsService
     /**
      * @return list<array{0: string, 1: int}>
      */
-    private function entryTypeRows(): array
+    private function entryTypeRows(string $dateFrom, string $dateTo): array
     {
         $labels = [];
         foreach (EntryType::values() as $type) {
             $labels[$type] = EntryType::label($type);
         }
 
-        return $this->filledRows($this->stats->attentionsByEntryType(), 'entry_type', $labels);
+        return $this->filledRows($this->stats->attentionsByEntryType($dateFrom, $dateTo), 'entry_type', $labels);
     }
 
     /**
      * @return list<array{0: string, 1: int}>
      */
-    private function destinationCenterRows(): array
+    private function destinationCenterRows(string $dateFrom, string $dateTo): array
     {
         $labels = [];
         foreach (AssistedReferralCatalog::destinationCenters() as $option) {
@@ -215,33 +295,33 @@ final class StatisticsService
             $labels[$option['value']] = $option['label'];
         }
 
-        return $this->filledRows($this->stats->referralsByDestinationCenter(), 'destination_center', $labels);
+        return $this->filledRows($this->stats->referralsByDestinationCenter($dateFrom, $dateTo), 'destination_center', $labels);
     }
 
     /**
      * @return list<array{0: string, 1: int}>
      */
-    private function classificationRows(): array
+    private function classificationRows(string $dateFrom, string $dateTo): array
     {
         $labels = ['sin_clasificar' => 'Sin clasificar'];
         foreach ($this->assistClassification->options() as $option) {
             $labels[$option['value']] = $option['label'];
         }
 
-        return $this->filledRows($this->stats->assistByClassification(), 'risk_level', $labels);
+        return $this->filledRows($this->stats->assistByClassification($dateFrom, $dateTo), 'risk_level', $labels);
     }
 
     /**
      * @return list<array{0: string, 1: int}>
      */
-    private function followUpResultRows(): array
+    private function followUpResultRows(string $dateFrom, string $dateTo): array
     {
         $labels = [];
         foreach (FollowUpCatalog::results() as $option) {
             $labels[$option['value']] = $option['label'];
         }
 
-        return $this->filledRows($this->stats->followUpsByResult(), 'result', $labels);
+        return $this->filledRows($this->stats->followUpsByResult($dateFrom, $dateTo), 'result', $labels);
     }
 
     /**

@@ -67,6 +67,7 @@ $router->put('/followups/{id}', [FollowUpController::class, 'update'], 'can:send
 $router->delete('/followups/{id}', [FollowUpController::class, 'destroy'], 'can:senda.followups.delete');
 
 $router->get('/statistics', [StatisticsController::class, 'index'], 'can:senda.statistics.view', 'senda.statistics');
+$router->get('/statistics/export', [StatisticsController::class, 'export'], 'can:senda.statistics.export', 'senda.statistics.export');
 
 $router->get('/meetings', [MeetingController::class, 'index'], 'can:senda.meetings.view', 'senda.meetings.index');
 $router->get('/meetings/create', [MeetingController::class, 'create'], 'can:senda.meetings.create', 'senda.meetings.create');

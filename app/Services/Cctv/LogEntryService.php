@@ -25,7 +25,8 @@ final class LogEntryService
         private readonly CatalogService $catalogs = new CatalogService(),
         private readonly CameraService $cameras = new CameraService(),
         private readonly CctvAuditService $cctvAudit = new CctvAuditService(),
-        private readonly ClosedShiftPolicy $closedShiftPolicy = new ClosedShiftPolicy()
+        private readonly ClosedShiftPolicy $closedShiftPolicy = new ClosedShiftPolicy(),
+        private readonly LogEntryHistoryService $entryHistory = new LogEntryHistoryService()
     ) {
     }
 
@@ -247,16 +248,19 @@ final class LogEntryService
         }
 
         $viewerId ??= Auth::id();
-        if (!hasPermission('cctv.log.view_all')) {
-            if ($viewerId === null || (int) ($record['created_by'] ?? 0) !== $viewerId) {
-                throw new HttpException(403, 'No puede consultar registros de otros operadores.');
-            }
+        if (!$this->closedShiftPolicy->canViewLogEntry($record, $viewerId)) {
+            throw new HttpException(403, 'No puede consultar registros de otros operadores.');
         }
 
         $presented = $this->presentDetail($record);
         $presented['contacts'] = $this->presentContacts($id);
         if ($presented['contacts'] !== []) {
             $presented['show_coordinations'] = true;
+        }
+
+        $handoverClosure = (new LogHandoverService())->closureSummaryForEntry($id);
+        if ($handoverClosure !== null) {
+            $presented['handover_closure'] = $handoverClosure;
         }
 
         return $presented;
@@ -519,7 +523,26 @@ final class LogEntryService
                     $presented['contacts'] ?? [],
                     $this->cctvAudit->sanitizeLogEntry($presented)
                 );
+
+                foreach ($presented['contacts'] ?? [] as $contact) {
+                    $this->entryHistory->record(
+                        $id,
+                        \App\Models\Cctv\LogEntryHistory::ACTION_COORDINATION,
+                        'Coordinación con ' . (string) ($contact['contact_type_label'] ?? 'institución') . '.',
+                        $createdBy,
+                        (int) ($payload['cctv_shift_id'] ?? 0),
+                        ['contact_type' => $contact['contact_type'] ?? null]
+                    );
+                }
             }
+
+            $this->entryHistory->record(
+                $id,
+                \App\Models\Cctv\LogEntryHistory::ACTION_CREATED,
+                (string) ($payload['observations'] ?? 'Registro creado.'),
+                $createdBy,
+                (int) ($payload['cctv_shift_id'] ?? 0)
+            );
 
             return $id;
         });
@@ -536,6 +559,7 @@ final class LogEntryService
         }
 
         $current = $this->find($id);
+        (new LogHandoverService())->assertEntryEditable($id);
         $shift = $this->closedShiftPolicy->assertLogEntryMutation(
             (int) ($currentRecord['cctv_shift_id'] ?? 0),
             $currentRecord
@@ -559,13 +583,22 @@ final class LogEntryService
         $payload = $this->buildPayload($merged, (int) ($currentRecord['created_by'] ?? Auth::id() ?? 0));
         $payload['cctv_shift_id'] = (int) ($currentRecord['cctv_shift_id'] ?? 0);
 
+        $newStatus = (string) ($payload['status'] ?? '');
+        $oldStatus = (string) ($current['status'] ?? '');
+        $isFinalizing = $this->isFinalStatus($newStatus, $logTypeSlug)
+            && !$this->isFinalStatus($oldStatus, $logTypeSlug);
+
         Database::transaction(function () use (
             $id,
             $payload,
             $data,
             $contactPayload,
             $logTypeSlug,
-            $cameraStatus
+            $cameraStatus,
+            $newStatus,
+            $oldStatus,
+            $isFinalizing,
+            $current
         ): void {
             $this->entries->update($id, $payload);
             $this->contacts->deleteByEntry($id);
@@ -579,6 +612,37 @@ final class LogEntryService
                 if ($cameraId > 0 && $cameraStatus !== '') {
                     $this->cameras->applyStatus($cameraId, $cameraStatus, $id);
                 }
+            }
+
+            $operatorId = Auth::id();
+            $shiftId = (int) ($payload['cctv_shift_id'] ?? 0);
+
+            if ($newStatus !== $oldStatus) {
+                $this->entryHistory->record(
+                    $id,
+                    \App\Models\Cctv\LogEntryHistory::ACTION_STATUS_CHANGE,
+                    'Estado cambiado de ' . $this->statusLabel($oldStatus, $logTypeSlug) . ' a ' . $this->statusLabel($newStatus, $logTypeSlug) . '.',
+                    $operatorId,
+                    $shiftId
+                );
+            }
+
+            if ($isFinalizing) {
+                $this->entryHistory->record(
+                    $id,
+                    \App\Models\Cctv\LogEntryHistory::ACTION_COMPLETED,
+                    'Procedimiento finalizado.',
+                    $operatorId,
+                    $shiftId
+                );
+            } elseif (trim((string) ($payload['observations'] ?? '')) !== trim((string) ($current['observations'] ?? ''))) {
+                $this->entryHistory->record(
+                    $id,
+                    \App\Models\Cctv\LogEntryHistory::ACTION_UPDATED,
+                    (string) ($payload['observations'] ?? 'Actualización registrada.'),
+                    $operatorId,
+                    $shiftId
+                );
             }
         });
 
@@ -1381,6 +1445,15 @@ final class LogEntryService
             static fn (array $contact): string => (string) ($contact['display'] ?? ''),
             $contacts
         ));
+    }
+
+    private function isFinalStatus(string $status, string $logTypeSlug): bool
+    {
+        if ($logTypeSlug === LogType::SLUG_TECHNICAL) {
+            return $status === TechnicalEntryCatalog::STATUS_OPERATIONAL_AGAIN;
+        }
+
+        return $status === LogEntry::STATUS_FINISHED;
     }
 
     private function statusLabel(string $status, string $logTypeSlug = ''): string

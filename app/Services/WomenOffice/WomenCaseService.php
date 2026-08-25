@@ -19,6 +19,7 @@ use App\Repositories\WomenOffice\PersonRepository;
 use App\Repositories\WomenOffice\PreviousReportRepository;
 use App\Repositories\WomenOffice\ProtectiveMeasureRepository;
 use App\Services\AuditService;
+use App\Services\NotificationService;
 use Core\Auth;
 use Core\Database;
 use Core\Exceptions\HttpException;
@@ -42,7 +43,8 @@ final class WomenCaseService
         private readonly CatalogRepository $catalogs = new CatalogRepository(),
         private readonly WomenCaseNumberService $numbers = new WomenCaseNumberService(),
         private readonly WomenCaseAccessPolicy $access = new WomenCaseAccessPolicy(),
-        private readonly WomenAuditService $womenAudit = new WomenAuditService()
+        private readonly WomenAuditService $womenAudit = new WomenAuditService(),
+        private readonly NotificationService $notifications = new NotificationService()
     ) {
     }
 
@@ -605,6 +607,7 @@ $this->womenAudit->caseUpdated(
         $before = $this->auditSnapshot($case) + [
             'referrals' => $case['referrals'],
         ];
+        $beforeCount = count($case['referrals'] ?? []);
 
         $pdo = Database::connection();
         $started = $pdo->inTransaction();
@@ -627,6 +630,16 @@ $this->womenAudit->caseUpdated(
                 $before,
                 $after
             );
+
+            $afterCount = count($afterCase['referrals'] ?? []);
+            if ($afterCount > $beforeCount) {
+                $caseNumber = trim((string) ($afterCase['case_number'] ?? $case['case_number'] ?? ''));
+                $this->notifications->broadcastWomenReferralCreated(
+                    $id,
+                    $caseNumber !== '' ? $caseNumber : ('#' . $id),
+                    $userId
+                );
+            }
 
             if (!$started) {
                 $pdo->commit();

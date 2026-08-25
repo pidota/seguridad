@@ -9,6 +9,7 @@ use App\Repositories\Senda\AssistResultRepository;
 use App\Repositories\Senda\AttentionRepository;
 use App\Repositories\Senda\PersonRepository;
 use App\Services\AuditService;
+use App\Services\NotificationService;
 use Core\Auth;
 use Core\Database;
 use Core\Exceptions\HttpException;
@@ -21,7 +22,8 @@ final class ReferralService
         private readonly AssistClassificationService $assistClassification = new AssistClassificationService(),
         private readonly AttentionRepository $attentions = new AttentionRepository(),
         private readonly PersonRepository $people = new PersonRepository(),
-        private readonly AuditService $audit = new AuditService()
+        private readonly AuditService $audit = new AuditService(),
+        private readonly NotificationService $notifications = new NotificationService()
     ) {
     }
 
@@ -59,7 +61,7 @@ final class ReferralService
         }
 
         try {
-            return Database::transaction(function () use ($payload, $assistResults): int {
+            $referralId = Database::transaction(function () use ($payload, $assistResults): int {
                 $id = $this->referrals->create($payload);
                 $this->assistResults->replaceForReferral($id, $assistResults);
                 $created = $this->referrals->findById($id);
@@ -68,6 +70,19 @@ final class ReferralService
 
                 return $id;
             });
+
+            $created = $this->referrals->findById($referralId);
+            if ($created !== null) {
+                $presented = $this->present($created);
+                $personLabel = trim((string) ($presented['person_full_name'] ?? ''));
+                $this->notifications->broadcastSendaReferralCreated(
+                    $referralId,
+                    $personLabel !== '' ? $personLabel : 'persona atendida',
+                    Auth::id()
+                );
+            }
+
+            return $referralId;
         } catch (\PDOException $e) {
             if ((string) ($e->errorInfo[0] ?? '') === '23000') {
                 throw new HttpException(422, 'Esta atención ya tiene una ficha de referencia. Utilice el registro existente.');

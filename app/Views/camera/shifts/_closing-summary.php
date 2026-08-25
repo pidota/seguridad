@@ -35,5 +35,15 @@ $closingSummary = $closingSummary ?? [];
             <dt>Coordinaciones</dt>
             <dd><?= (int) ($closingSummary['coordinations'] ?? 0) ?></dd>
         </div>
+        <div>
+            <dt>Finalizados</dt>
+            <dd><?= (int) ($closingSummary['finished'] ?? 0) ?></dd>
+        </div>
+        <div>
+            <dt>En desarrollo</dt>
+            <dd><?= (int) ($closingSummary['in_progress'] ?? 0) ?></dd>
+        </div>
     </dl>
 </section>
+
+<?php require __DIR__ . '/_pending-handovers.php'; ?>

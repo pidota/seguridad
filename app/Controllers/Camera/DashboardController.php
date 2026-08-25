@@ -10,6 +10,7 @@ use App\Services\Cctv\ShiftService;
 use App\Services\Cctv\VisitDashboardService;
 use Core\Auth;
 use Core\Request;
+use Core\Session;
 
 final class DashboardController extends CameraController
 {
@@ -72,6 +73,16 @@ final class DashboardController extends CameraController
             ? $this->visitDashboard->operatorPanel()
             : null;
 
+        $handoverAlertCount = (int) Session::getFlash('cctv_handover_alert_count', 0);
+        $pendingHandoversCount = 0;
+        $inProgressCount = 0;
+
+        if ($openShift !== null && hasPermission('cctv.handovers.view')) {
+            $pendingHandoversCount = (new \App\Services\Cctv\LogHandoverService())
+                ->countUnreviewedForShift((int) $openShift['id'], Auth::id());
+            $inProgressCount = (int) (($shiftPanel['in_progress_count'] ?? 0));
+        }
+
         $this->cameraView('dashboard/index', [
             'title' => 'Central de Cámaras',
             'shiftPanel' => $shiftPanel,
@@ -90,7 +101,14 @@ final class DashboardController extends CameraController
             'camerasMapCount' => hasPermission('cctv.cameras.view')
                 ? count($this->cameras->listForMap(!hasPermission('cctv.cameras.manage')))
                 : 0,
-            'moduleScripts' => $this->cctvScripts('dashboard.js'),
+            'handoverAlertCount' => $handoverAlertCount,
+            'pendingHandoversCount' => $pendingHandoversCount,
+            'inProgressCount' => $inProgressCount,
+            'canViewHandovers' => hasPermission('cctv.handovers.view'),
+            'moduleScripts' => $this->cctvScripts(...array_values(array_filter([
+                'dashboard.js',
+                $handoverAlertCount > 0 ? 'handover.js' : null,
+            ]))),
         ]);
     }
 }

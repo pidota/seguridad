@@ -11,15 +11,7 @@
     </div>
 
     <div class="navbar-user dropdown">
-        <?php $pendingSignatures = meetings_pending_signature_count(); ?>
-        <?php if ($pendingSignatures > 0 && hasPermission('meetings.view_pending_signatures')): ?>
-            <a class="btn btn-outline-navy btn-sm me-2 position-relative" href="<?= e(url('/meetings/pending-signatures')) ?>" title="Firmas pendientes">
-                <i class="bi bi-pen"></i>
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill text-bg-danger">
-                    <?= (int) $pendingSignatures ?>
-                </span>
-            </a>
-        <?php endif; ?>
+        <?= component('notifications-dropdown', ['user' => $user]) ?>
         <button class="navbar-user__button dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
             <span class="navbar-user__avatar"><?= e(mb_strtoupper(mb_substr((string) ($user['name'] ?? 'U'), 0, 1))) ?></span>
             <span class="navbar-user__meta">
@@ -28,6 +20,15 @@
             </span>
         </button>
         <ul class="dropdown-menu dropdown-menu-end navbar-dropdown">
+            <li>
+                <a class="dropdown-item" href="<?= e(url('/notifications')) ?>">
+                    <i class="bi bi-bell"></i> Notificaciones
+                    <?php $navbarUnread = notifications_unread_count(); ?>
+                    <?php if ($navbarUnread > 0): ?>
+                        <span class="badge text-bg-danger ms-1"><?= (int) $navbarUnread ?></span>
+                    <?php endif; ?>
+                </a>
+            </li>
             <li>
                 <a class="dropdown-item" href="<?= e(url('/profile')) ?>">
                     <i class="bi bi-person"></i> Perfil

@@ -15,6 +15,7 @@ use App\Repositories\Cctv\ShiftRepository;
 use Core\Auth;
 use Core\Database;
 use Core\Exceptions\HttpException;
+use Core\Session;
 
 final class ShiftService
 {
@@ -23,6 +24,7 @@ final class ShiftService
         private readonly ShiftEquipmentCheckRepository $equipmentChecks = new ShiftEquipmentCheckRepository(),
         private readonly EquipmentRepository $equipment = new EquipmentRepository(),
         private readonly LogEntryRepository $logEntries = new LogEntryRepository(),
+        private readonly LogHandoverService $handovers = new LogHandoverService(),
         private readonly CctvAuditService $cctvAudit = new CctvAuditService(),
         private readonly ClosedShiftPolicy $closedShiftPolicy = new ClosedShiftPolicy()
     ) {
@@ -72,6 +74,8 @@ final class ShiftService
                 'last_shift' => null,
                 'opening_checks' => [],
                 'can_start' => false,
+                'pending_handovers_count' => 0,
+                'in_progress_count' => 0,
             ];
         }
 
@@ -84,6 +88,12 @@ final class ShiftService
             'last_shift' => $last,
             'opening_checks' => $openingChecks,
             'can_start' => $open === null && hasPermission('cctv.shifts.create'),
+            'pending_handovers_count' => $open
+                ? $this->handovers->countUnreviewedForShift((int) $open['id'], $operatorId)
+                : 0,
+            'in_progress_count' => $open
+                ? (int) (($this->logEntries->shiftStatusStats((int) $open['id']))['in_progress'] ?? 0)
+                : 0,
         ];
     }
 
@@ -135,6 +145,7 @@ final class ShiftService
             ];
 
             $id = $this->shifts->create($payload);
+            $assigned = $this->handovers->assignPendingToNewShift($id, $operatorId);
             $savedChecks = $this->persistEquipmentChecks(
                 $id,
                 $operatorId,
@@ -152,6 +163,10 @@ final class ShiftService
                     $savedChecks
                 )
             );
+
+            if ($assigned > 0) {
+                Session::flash('cctv_handover_alert_count', $assigned);
+            }
 
             return $id;
         });
@@ -342,8 +357,11 @@ final class ShiftService
         $checks = $this->normalizeEquipmentInput($data['equipment'] ?? [], $equipmentItems);
         $endedAt = date('Y-m-d H:i:s');
         $closingNotes = $this->nullable($data['closing_notes'] ?? null);
+        $handoverNotes = is_array($data['handover_notes'] ?? null) ? $data['handover_notes'] : [];
 
-        Database::transaction(function () use ($id, $operatorId, $checks, $endedAt, $closingNotes, $current): void {
+        Database::transaction(function () use ($id, $operatorId, $checks, $endedAt, $closingNotes, $current, $handoverNotes): void {
+            $handoverCount = $this->handovers->createOnShiftClose($id, $operatorId, $handoverNotes, $endedAt);
+
             $savedChecks = $this->persistEquipmentChecks(
                 $id,
                 $operatorId,
@@ -369,6 +387,10 @@ final class ShiftService
                     $savedChecks
                 )
             );
+
+            if ($handoverCount > 0) {
+                Session::flash('cctv_shift_handovers_created', $handoverCount);
+            }
         });
     }
 
@@ -422,12 +444,16 @@ final class ShiftService
      *     incidents: int,
      *     general_entries: int,
      *     technical_issues: int,
-     *     coordinations: int
+     *     coordinations: int,
+     *     finished: int,
+     *     in_progress: int,
+     *     pending_entries: list<array<string, mixed>>
      * }
      */
     public function closingSummary(array $openShift): array
     {
         $shiftId = (int) ($openShift['id'] ?? 0);
+        $operatorId = (int) ($openShift['operator_id'] ?? 0);
         $stats = $shiftId > 0 ? $this->logEntries->shiftStats($shiftId) : [
             'total_entries' => 0,
             'incidents' => 0,
@@ -435,6 +461,12 @@ final class ShiftService
             'technical_issues' => 0,
             'coordinations' => 0,
         ];
+        $statusStats = $shiftId > 0 ? $this->logEntries->shiftStatusStats($shiftId) : [
+            'total' => 0,
+            'finished' => 0,
+            'in_progress' => 0,
+        ];
+        $pendingEntries = $operatorId > 0 ? $this->handovers->pendingEntriesForClosing($operatorId) : [];
 
         return [
             'started_time' => (string) ($openShift['started_time_formatted'] ?? '—'),
@@ -444,6 +476,9 @@ final class ShiftService
             'general_entries' => (int) ($stats['general_entries'] ?? 0),
             'technical_issues' => (int) ($stats['technical_issues'] ?? 0),
             'coordinations' => (int) ($stats['coordinations'] ?? 0),
+            'finished' => (int) ($statusStats['finished'] ?? 0),
+            'in_progress' => (int) ($statusStats['in_progress'] ?? 0),
+            'pending_entries' => $pendingEntries,
         ];
     }
 

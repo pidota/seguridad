@@ -192,6 +192,73 @@ $incidentFieldLabel = (($record['log_type_slug'] ?? '') === 'novedad_tecnica')
 
 
 
+<?php
+$handoverClosure = is_array($record['handover_closure'] ?? null) ? $record['handover_closure'] : null;
+?>
+<?php if ($handoverClosure !== null): ?>
+    <section class="page-card cctv-log-detail mb-3">
+        <h3 class="cctv-log-detail__title">Traspaso entre turnos</h3>
+        <dl class="camera-detail-grid">
+            <div>
+                <dt>Decisión</dt>
+                <dd><?= e((string) ($handoverClosure['handover_status_label'] ?? '—')) ?></dd>
+            </div>
+            <?php if (($handoverClosure['handover_status'] ?? '') === 'not_continued'): ?>
+                <div>
+                    <dt>Operador que finalizó el pendiente</dt>
+                    <dd><?= e((string) ($handoverClosure['finalized_by_label'] ?? '—')) ?></dd>
+                </div>
+                <div>
+                    <dt>Fecha de cierre</dt>
+                    <dd><?= e((string) ($handoverClosure['finalized_at_formatted'] ?? '—')) ?></dd>
+                </div>
+                <div>
+                    <dt>Motivo</dt>
+                    <dd><?= e((string) ($handoverClosure['decision_reason_label'] ?? '—')) ?></dd>
+                </div>
+                <?php if (($handoverClosure['delegated_institution_label'] ?? '—') !== '—'): ?>
+                    <div>
+                        <dt>Institución a cargo</dt>
+                        <dd><?= e((string) $handoverClosure['delegated_institution_label']) ?></dd>
+                    </div>
+                <?php endif; ?>
+                <?php if (($handoverClosure['approx_completion_time'] ?? '—') !== '—'): ?>
+                    <div>
+                        <dt>Hora aprox. de finalización</dt>
+                        <dd><?= e((string) $handoverClosure['approx_completion_time']) ?></dd>
+                    </div>
+                <?php endif; ?>
+            <?php elseif (($handoverClosure['handover_status'] ?? '') === 'accepted'): ?>
+                <div>
+                    <dt>Continuidad aceptada por</dt>
+                    <dd><?= e((string) ($handoverClosure['continuity_by_label'] ?? '—')) ?></dd>
+                </div>
+                <div>
+                    <dt>Fecha de revisión</dt>
+                    <dd><?= e((string) ($handoverClosure['continuity_at_formatted'] ?? '—')) ?></dd>
+                </div>
+            <?php else: ?>
+                <div>
+                    <dt>Revisado por</dt>
+                    <dd><?= e((string) ($handoverClosure['reviewed_by_label'] ?? '—')) ?></dd>
+                </div>
+                <div>
+                    <dt>Fecha de revisión</dt>
+                    <dd><?= e((string) ($handoverClosure['reviewed_at_formatted'] ?? '—')) ?></dd>
+                </div>
+            <?php endif; ?>
+        </dl>
+        <?php if (trim((string) ($handoverClosure['decision_details'] ?? '')) !== ''): ?>
+            <div class="camera-detail-block mb-0">
+                <h4 class="camera-detail-block__title">Justificación</h4>
+                <p class="camera-detail-block__text mb-0"><?= nl2br(e((string) $handoverClosure['decision_details'])) ?></p>
+            </div>
+        <?php endif; ?>
+    </section>
+<?php endif; ?>
+
+
+
 <?php if ($showCoordinations): ?>
 
     <section class="page-card cctv-log-detail mb-3">

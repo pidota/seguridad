@@ -7,6 +7,7 @@ namespace App\Services\Meetings;
 use App\Repositories\Meetings\MeetingParticipantRepository;
 use App\Services\AuditService;
 use App\Services\MailService;
+use App\Services\NotificationService as AppNotificationService;
 use Core\Exceptions\HttpException;
 use Core\Logger;
 use Core\Request;
@@ -18,7 +19,8 @@ final class MeetingAttendanceService
         private readonly MeetingParticipantRepository $participants = new MeetingParticipantRepository(),
         private readonly MeetingService $meetings = new MeetingService(),
         private readonly MailService $mail = new MailService(),
-        private readonly MeetingAuditService $audit = new MeetingAuditService()
+        private readonly MeetingAuditService $audit = new MeetingAuditService(),
+        private readonly AppNotificationService $notifications = new AppNotificationService()
     ) {
     }
 
@@ -131,6 +133,17 @@ final class MeetingAttendanceService
             $this->audit->attendanceConfirmed($meetingId, $payload);
         } else {
             $this->audit->attendanceDeclined($meetingId, $payload);
+        }
+
+        $creatorId = (int) ($meeting['created_by'] ?? 0);
+        if ($creatorId > 0) {
+            $this->notifications->notifyAttendanceResponse(
+                $creatorId,
+                $meetingId,
+                (string) ($meeting['meeting_number'] ?? ''),
+                (string) ($participant['external_name'] ?? 'Participante externo'),
+                $status
+            );
         }
     }
 

@@ -45,6 +45,34 @@ final class PermissionRepository
         return $stmt->fetchAll(\PDO::FETCH_COLUMN) ?: [];
     }
 
+    /**
+     * @return list<int>
+     */
+    public function userIdsWithPermission(string $slug): array
+    {
+        $sql = 'SELECT DISTINCT u.id
+                FROM users u
+                INNER JOIN user_roles ur ON ur.user_id = u.id
+                INNER JOIN role_permissions rp ON rp.role_id = ur.role_id
+                INNER JOIN permissions p ON p.id = rp.permission_id
+                WHERE u.is_active = 1 AND p.slug = :slug
+                UNION
+                SELECT DISTINCT u.id
+                FROM users u
+                INNER JOIN user_roles ur ON ur.user_id = u.id
+                INNER JOIN roles r ON r.id = ur.role_id
+                WHERE u.is_active = 1 AND r.slug = :superadmin
+                ORDER BY id ASC';
+
+        $stmt = $this->db()->prepare($sql);
+        $stmt->execute([
+            'slug' => $slug,
+            'superadmin' => 'superadministrador',
+        ]);
+
+        return array_map('intval', $stmt->fetchAll(\PDO::FETCH_COLUMN) ?: []);
+    }
+
     public function findBySlug(string $slug): ?array
     {
         $stmt = $this->db()->prepare('SELECT * FROM permissions WHERE slug = :slug LIMIT 1');

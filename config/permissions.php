@@ -54,6 +54,7 @@ return [
     ['slug' => 'senda.followups.delete', 'name' => 'Eliminar seguimientos SENDA', 'module' => 'senda', 'description' => 'Eliminar seguimientos'],
 
     ['slug' => 'senda.statistics.view', 'name' => 'Ver estadísticas SENDA', 'module' => 'senda', 'description' => 'Consultar indicadores del módulo'],
+    ['slug' => 'senda.statistics.export', 'name' => 'Exportar estadísticas SENDA', 'module' => 'senda', 'description' => 'Descargar indicadores agregados para rendición'],
 
     ['slug' => 'cctv.access', 'name' => 'Acceder a Central CCTV', 'module' => 'cctv', 'description' => 'Ingreso al módulo de videovigilancia'],
     ['slug' => 'cctv.dashboard.view', 'name' => 'Ver panel CCTV', 'module' => 'cctv', 'description' => 'Consultar el dashboard de la central'],
@@ -70,6 +71,10 @@ return [
     ['slug' => 'cctv.log.delete', 'name' => 'Anular registros CCTV', 'module' => 'cctv', 'description' => 'Anular entradas de la bitácora operativa'],
     ['slug' => 'cctv.log.view_all', 'name' => 'Ver toda la bitácora CCTV', 'module' => 'cctv', 'description' => 'Consultar novedades de todos los operadores'],
     ['slug' => 'cctv.log.edit_closed', 'name' => 'Editar novedades CCTV cerradas', 'module' => 'cctv', 'description' => 'Modificar entradas asociadas a turnos cerrados'],
+
+    ['slug' => 'cctv.handovers.view', 'name' => 'Ver traspasos CCTV', 'module' => 'cctv', 'description' => 'Consultar pendientes recibidos entre turnos'],
+    ['slug' => 'cctv.handovers.accept', 'name' => 'Aceptar continuidad CCTV', 'module' => 'cctv', 'description' => 'Aceptar procedimientos traspasados al turno actual'],
+    ['slug' => 'cctv.handovers.decline', 'name' => 'Declinar continuidad CCTV', 'module' => 'cctv', 'description' => 'Finalizar procedimientos traspasados con motivo y justificación'],
 
     ['slug' => 'cctv.cameras.view', 'name' => 'Ver cámaras CCTV', 'module' => 'cctv', 'description' => 'Consultar el inventario de cámaras'],
     ['slug' => 'cctv.cameras.manage', 'name' => 'Administrar cámaras CCTV', 'module' => 'cctv', 'description' => 'Crear, editar y dar de baja cámaras'],
@@ -113,6 +118,7 @@ return [
     ['slug' => 'women.followups.edit', 'name' => 'Editar seguimientos', 'module' => 'women', 'description' => 'Modificar seguimientos'],
 
     ['slug' => 'women.statistics.view', 'name' => 'Ver estadísticas', 'module' => 'women', 'description' => 'Consultar indicadores agregados'],
+    ['slug' => 'women.statistics.export', 'name' => 'Exportar estadísticas', 'module' => 'women', 'description' => 'Descargar indicadores agregados para rendición'],
 
     ['slug' => 'women.documents.view', 'name' => 'Ver documentos', 'module' => 'women', 'description' => 'Consultar documentos adjuntos de casos'],
     ['slug' => 'women.documents.upload', 'name' => 'Subir documentos', 'module' => 'women', 'description' => 'Adjuntar documentos a casos'],
@@ -138,4 +144,9 @@ return [
     ['slug' => 'guards.shifts.view', 'name' => 'Ver turnos de guardias', 'module' => 'guards', 'description' => 'Consultar turnos y novedades'],
     ['slug' => 'guards.shifts.create', 'name' => 'Crear turnos de guardias', 'module' => 'guards', 'description' => 'Registrar turnos'],
     ['slug' => 'guards.shifts.update', 'name' => 'Editar turnos de guardias', 'module' => 'guards', 'description' => 'Modificar turnos'],
+    ['slug' => 'guards.shifts.close', 'name' => 'Cerrar turnos de guardias', 'module' => 'guards', 'description' => 'Finalizar turno operativo en terreno'],
+    ['slug' => 'guards.shifts.view_all', 'name' => 'Ver todos los turnos de guardias', 'module' => 'guards', 'description' => 'Consultar turnos de todo el personal de guardia'],
+    ['slug' => 'guards.log.view', 'name' => 'Ver bitácora de guardias', 'module' => 'guards', 'description' => 'Consultar novedades y rondas registradas'],
+    ['slug' => 'guards.log.create', 'name' => 'Registrar novedades de guardias', 'module' => 'guards', 'description' => 'Agregar entradas a la bitácora de terreno'],
+    ['slug' => 'guards.log.link_cctv', 'name' => 'Notificar monitoreo CCTV', 'module' => 'guards', 'description' => 'Enviar novedades de guardias a la bitácora de operadores CCTV'],
 ];

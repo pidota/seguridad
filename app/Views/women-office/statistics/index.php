@@ -2,8 +2,19 @@
     <div>
         <p class="welcome-kicker mb-1">Oficina de la Mujer</p>
         <h2 class="page-card__title mb-1">Estadísticas</h2>
-        <p class="text-secondary mb-0">Indicadores agregados calculados desde MySQL. No incluyen nombres, RUT ni domicilios.</p>
+        <p class="text-secondary mb-0">Indicadores agregados para rendición a jefatura. No incluyen nombres, RUT ni domicilios.</p>
     </div>
+    <?php if (hasPermission('women.statistics.export')): ?>
+        <?php
+            $exportQuery = http_build_query(array_filter([
+                'date_from' => $filters['date_from'] ?? '',
+                'date_to' => $filters['date_to'] ?? '',
+            ]));
+        ?>
+        <a href="<?= e(url('/women/statistics/export' . ($exportQuery !== '' ? '?' . $exportQuery : ''))) ?>" class="btn btn-outline-navy">
+            Exportar CSV
+        </a>
+    <?php endif; ?>
 </section>
 
 <?= women_nav($womenNav ?? []) ?>

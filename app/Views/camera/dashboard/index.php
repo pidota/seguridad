@@ -38,6 +38,34 @@ $showShiftPanel = hasPermission('cctv.shifts.view');
 
     <?php if ($openShift): ?>
 
+        <?php if (!empty($canViewHandovers) && (($pendingHandoversCount ?? 0) > 0 || ($inProgressCount ?? 0) > 0)): ?>
+            <section class="cctv-pending-cards mb-3">
+                <div class="cctv-pending-cards__card">
+                    <span>Pendientes del turno anterior</span>
+                    <strong><?= (int) ($pendingHandoversCount ?? 0) ?></strong>
+                    <?php if (($pendingHandoversCount ?? 0) > 0): ?>
+                        <a href="<?= e(url('/cctv/handovers')) ?>" class="btn btn-sm btn-navy mt-2" data-cctv-handover-link>Revisar pendientes</a>
+                    <?php endif; ?>
+                </div>
+                <div class="cctv-pending-cards__card">
+                    <span>Incidentes en desarrollo</span>
+                    <strong><?= (int) ($inProgressCount ?? 0) ?></strong>
+                </div>
+                <div class="cctv-pending-cards__card">
+                    <span>Sin revisar</span>
+                    <strong><?= (int) ($pendingHandoversCount ?? 0) ?></strong>
+                </div>
+            </section>
+
+            <?php if (($pendingHandoversCount ?? 0) > 0): ?>
+                <div class="cctv-handover-alert mb-3" role="status">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <span>Tiene procedimientos heredados pendientes de revisión.</span>
+                    <a href="<?= e(url('/cctv/handovers')) ?>" class="ms-auto btn btn-sm btn-outline-navy" data-cctv-handover-link>Revisar</a>
+                </div>
+            <?php endif; ?>
+        <?php endif; ?>
+
         <?php require __DIR__ . '/active-shift.php'; ?>
 
     <?php else: ?>
@@ -117,6 +145,10 @@ $showShiftPanel = hasPermission('cctv.shifts.view');
 <?php endif; ?>
 
 
+
+<?php if (($handoverAlertCount ?? 0) > 0): ?>
+<script>document.body.dataset.cctvHandoverAlert = '<?= (int) $handoverAlertCount ?>';</script>
+<?php endif; ?>
 
 <?php
 

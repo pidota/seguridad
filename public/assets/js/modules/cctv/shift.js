@@ -57,23 +57,55 @@ function bindCloseConfirmation(form) {
         summary.ending_time = formatNowTime();
         refreshClosingEndingTime(form, summary.ending_time);
 
-        Swal.fire({
-            icon: 'warning',
-            title: '¿Finalizar turno CCTV?',
-            html: buildClosingSummaryHtml(summary)
-                + '<p class="cctv-shift-close-confirm__message">Una vez finalizado, el turno quedará cerrado y las modificaciones posteriores estarán restringidas según permisos.</p>',
-            showCancelButton: true,
-            confirmButtonColor: '#0b1f33',
-            cancelButtonColor: '#5c6774',
-            confirmButtonText: 'Sí, finalizar',
-            cancelButtonText: 'Cancelar',
-            focusCancel: true,
-        }).then((result) => {
-            if (result.isConfirmed) {
-                form.dataset.cctvConfirmed = '1';
-                form.submit();
-            }
-        });
+        const pendingCount = Array.isArray(summary.pending_entries) ? summary.pending_entries.length : Number(summary.in_progress || 0);
+
+        if (pendingCount > 0) {
+            confirmCloseWithPending(form, summary, pendingCount);
+            return;
+        }
+
+        confirmClose(form, summary);
+    });
+}
+
+function confirmCloseWithPending(form, summary, pendingCount) {
+    Swal.fire({
+        icon: 'warning',
+        title: 'Existen registros pendientes',
+        html: '<p>Su turno posee <strong>' + pendingCount + '</strong> incidente(s) o novedad(es) en desarrollo. '
+            + 'Estos registros quedarán pendientes para que el siguiente operador determine su continuidad.</p>'
+            + buildClosingSummaryHtml(summary),
+        showCancelButton: true,
+        confirmButtonColor: '#0b1f33',
+        cancelButtonColor: '#5c6774',
+        confirmButtonText: 'Finalizar turno y traspasar pendientes',
+        cancelButtonText: 'Cancelar',
+        focusCancel: true,
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.dataset.cctvConfirmed = '1';
+            form.submit();
+        }
+    });
+}
+
+function confirmClose(form, summary) {
+    Swal.fire({
+        icon: 'warning',
+        title: '¿Finalizar turno CCTV?',
+        html: buildClosingSummaryHtml(summary)
+            + '<p class="cctv-shift-close-confirm__message">Una vez finalizado, el turno quedará cerrado y las modificaciones posteriores estarán restringidas según permisos.</p>',
+        showCancelButton: true,
+        confirmButtonColor: '#0b1f33',
+        cancelButtonColor: '#5c6774',
+        confirmButtonText: 'Sí, finalizar',
+        cancelButtonText: 'Cancelar',
+        focusCancel: true,
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.dataset.cctvConfirmed = '1';
+            form.submit();
+        }
     });
 }
 
@@ -109,6 +141,8 @@ function buildClosingSummaryHtml(summary) {
         + '<div><dt>Novedades</dt><dd>' + Number(summary.general_entries || 0) + '</dd></div>'
         + '<div><dt>Novedades técnicas</dt><dd>' + Number(summary.technical_issues || 0) + '</dd></div>'
         + '<div><dt>Coordinaciones</dt><dd>' + Number(summary.coordinations || 0) + '</dd></div>'
+        + '<div><dt>Finalizados</dt><dd>' + Number(summary.finished || 0) + '</dd></div>'
+        + '<div><dt>En desarrollo</dt><dd>' + Number(summary.in_progress || 0) + '</dd></div>'
         + '</dl>'
         + '</div>';
 }
