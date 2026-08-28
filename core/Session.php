@@ -9,6 +9,8 @@ final class Session
     private const FLASH_KEY = '_flash';
     private const OLD_KEY = '_old_input';
     private const ERRORS_KEY = '_errors';
+    private const LAST_ACTIVITY_KEY = '_last_activity';
+    private const AUTH_SESSION_KEY = 'auth_user_id';
 
     public static function start(): void
     {
@@ -16,7 +18,7 @@ final class Session
             return;
         }
 
-        $lifetime = (int) env('SESSION_LIFETIME', 120) * 60;
+        $lifetime = max(60, (int) env('SESSION_LIFETIME', 60) * 60);
         $secure = Request::isHttps();
         $name = (string) env('SESSION_NAME', 'sigsm_session');
 
@@ -41,6 +43,46 @@ final class Session
         session_start();
 
         self::ageFlash();
+        self::enforceIdleTimeout($lifetime);
+    }
+
+    private static function enforceIdleTimeout(int $lifetimeSeconds): void
+    {
+        $now = time();
+        $lastActivity = (int) ($_SESSION[self::LAST_ACTIVITY_KEY] ?? 0);
+        $isAuthenticated = isset($_SESSION[self::AUTH_SESSION_KEY]);
+
+        if ($isAuthenticated && $lastActivity > 0 && ($now - $lastActivity) > $lifetimeSeconds) {
+            Auth::logout();
+            $idleMinutes = max(1, (int) env('SESSION_LIFETIME', 60));
+            $idleLabel = $idleMinutes === 60
+                ? '1 hora'
+                : ($idleMinutes % 60 === 0
+                    ? ((int) ($idleMinutes / 60)) . ' horas'
+                    : $idleMinutes . ' minutos');
+            self::flashAlert(
+                'warning',
+                'Sesión expirada',
+                'Su sesión se cerró tras ' . $idleLabel . ' de inactividad.'
+            );
+            $_SESSION[self::LAST_ACTIVITY_KEY] = $now;
+
+            return;
+        }
+
+        if ($isAuthenticated) {
+            $_SESSION[self::LAST_ACTIVITY_KEY] = $now;
+
+            $params = session_get_cookie_params();
+            setcookie(session_name(), session_id(), [
+                'expires' => $now + $lifetimeSeconds,
+                'path' => $params['path'],
+                'domain' => $params['domain'],
+                'secure' => $params['secure'],
+                'httponly' => $params['httponly'],
+                'samesite' => $params['samesite'] ?? 'Lax',
+            ]);
+        }
     }
 
     public static function regenerate(): void
