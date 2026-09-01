@@ -206,9 +206,9 @@ final class CameraService
     public function mapConfig(): array
     {
         return [
-            'defaultLat' => (float) cctv_config('map_default_latitude', -33.4489),
-            'defaultLng' => (float) cctv_config('map_default_longitude', -70.6693),
-            'defaultZoom' => (int) cctv_config('map_default_zoom', 13),
+            'defaultLat' => (float) cctv_config('map_default_latitude', -34.7333),
+            'defaultLng' => (float) cctv_config('map_default_longitude', -71.2833),
+            'defaultZoom' => (int) cctv_config('map_default_zoom', 14),
         ];
     }
 

@@ -21,9 +21,9 @@
             config = {};
         }
 
-        const defaultLat = Number(config.defaultLat ?? -33.4489);
-        const defaultLng = Number(config.defaultLng ?? -70.6693);
-        const defaultZoom = Number(config.defaultZoom ?? 13);
+        const defaultLat = Number(config.defaultLat ?? -34.7333);
+        const defaultLng = Number(config.defaultLng ?? -71.2833);
+        const defaultZoom = Number(config.defaultZoom ?? 14);
         const initialLat = parseFloat(container.getAttribute('data-initial-lat') || '');
         const initialLng = parseFloat(container.getAttribute('data-initial-lng') || '');
         const hasInitial = Number.isFinite(initialLat) && Number.isFinite(initialLng);

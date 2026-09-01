@@ -18,9 +18,9 @@
         return;
     }
 
-    const defaultLat = Number(config.defaultLat ?? -33.4489);
-    const defaultLng = Number(config.defaultLng ?? -70.6693);
-    const defaultZoom = Number(config.defaultZoom ?? 13);
+    const defaultLat = Number(config.defaultLat ?? -34.7333);
+    const defaultLng = Number(config.defaultLng ?? -71.2833);
+    const defaultZoom = Number(config.defaultZoom ?? 14);
 
     const map = L.map(container).setView([defaultLat, defaultLng], defaultZoom);
 
